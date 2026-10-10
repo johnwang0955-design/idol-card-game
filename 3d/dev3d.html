@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>html,body{margin:0;background:#1a1426;overflow:hidden}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.js?v=3d-20261010a","three/addons/":"./vendor/three/addons/","@pixiv/three-vrm":"./vendor/three-vrm.module.js?v=3d-20261010a"}}</script></head>
+<body><script type="module">
+import { THREE } from './js3d/core.js?v=3d-20261010a';
+import { Idol } from './js3d/idol.js?v=3d-20261010a';
+import * as M from './js3d/motion.js?v=3d-20261010a';
+const Q = new URLSearchParams(location.search);
+const ids = (Q.get('idols') || 'rinne').split(',');
+const outfit = (Q.get('outfit') || '').split(',');
+const views = (Q.get('views') || 'front,side,back,face').split(',');
+const pose = Q.get('pose') || 'stand'; const t = parseFloat(Q.get('t') || '0.5');
+const W = innerWidth, H = innerHeight;
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); r.setPixelRatio(1); r.setSize(W, H); r.outputColorSpace = THREE.SRGBColorSpace; document.body.appendChild(r.domElement);
+r.setScissorTest(true);
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#2a2238');
+scene.add(new THREE.AmbientLight(0xffffff, 1.0)); const d = new THREE.DirectionalLight(0xfff4ee, 2.2); d.position.set(1.5, 3, 4); scene.add(d);
+const floor = new THREE.Mesh(new THREE.CircleGeometry(3, 48), new THREE.MeshBasicMaterial({ color: '#3a3050' })); floor.rotation.x = -Math.PI / 2; scene.add(floor);
+const idols = [];
+for (const [k, id] of ids.entries()) {
+  const I = await Idol.load(id); const o = { top: outfit[0] || null, bottom: outfit[1] || null, shoes: outfit[2] || null, acc: outfit[3] || null };
+  I.wearOutfit(o); I.root.position.x = (k - (ids.length - 1) / 2) * 0.8; scene.add(I.root); idols.push(I);
+}
+if (Q.has('hideBody')) for (const I of idols) I.skin.visible = false;
+if (Q.has('dbg')) for (const I of idols) I.vrm.scene.traverse(o => { if (o.isSkinnedMesh && o.material && [].concat(o.material)[0].isMToonMaterial === undefined) {} if (o.isSkinnedMesh && !I.mats.find(x => x.o === o)) o.material = new THREE.MeshNormalMaterial({ side: THREE.DoubleSide }); });
+for (const I of idols) { for (let i = 0; i < 20; i++) { M[pose](I, t); I.setExpression(t); I.update(1 / 30); } }
+const cam = new THREE.PerspectiveCamera(30, 1, 0.05, 50);
+const n = views.length; const cols = n; const vw = Math.floor(W / cols), vh = H;
+views.forEach((v, i) => {
+  cam.aspect = vw / vh; cam.updateProjectionMatrix(); const span = ids.length * 0.8;
+  const tgt = new THREE.Vector3(0, v === 'face' ? 1.38 : (v === 'feet' ? 0.2 : 0.82), 0);
+  const dist = v === 'face' ? 0.75 : v === 'feet' ? 1.2 : 3.4 + span * 0.6;
+  const a = { front: 0, side: Math.PI / 2, back: Math.PI, q: Math.PI / 4, face: 0.25, feet: 0.6 }[v] ?? 0;
+  cam.position.set(Math.sin(a) * dist, tgt.y + (v === 'feet' ? 0.25 : 0.05), Math.cos(a) * dist); cam.lookAt(tgt);
+  r.setViewport(i * vw, 0, vw, vh); r.setScissor(i * vw, 0, vw, vh); r.render(scene, cam);
+});
+window.__idols = idols; window.__ready = true;
+</script></body></html>

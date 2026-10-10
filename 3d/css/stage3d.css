@@ -1,0 +1,20 @@
+/* 3D layer (Stage3D) */
+.host3d { position:absolute; inset:0; display:none; }
+.has3d .host3d { display:block; }
+.host3d canvas.gl3d { display:block; touch-action:none; }
+.preview-stage .host3d { z-index:5; cursor:grab; }
+.has3d .preview-stage .preview-idol { display:none; }
+.hint3d { display:none; position:absolute; left:0; right:0; bottom:8px; text-align:center; font-size:12px; color:rgba(255,240,210,.7); z-index:6; pointer-events:none; letter-spacing:.1em; }
+.has3d .hint3d { display:block; }
+.has3d .preview-stage { max-height:none; height:min(62vh,520px); aspect-ratio:auto; }
+#screen-dress { padding:0; position:fixed; inset:0; height:100dvh; overflow:hidden; background:#000; z-index:5; }
+#screen-dress .host3d { display:block; }
+.dress-cap { position:absolute; left:0; right:0; top:12%; text-align:center; font:italic 700 clamp(26px,6vw,54px)/1 'Cormorant Garamond',Georgia,serif; color:#fff; letter-spacing:.12em; text-shadow:0 0 18px rgba(255,120,200,.9),0 2px 0 #7a2a8a; transition:opacity .3s; pointer-events:none; }
+.dress-flash { position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; }
+.dress-skip { position:absolute; right:14px; bottom:calc(16px + env(safe-area-inset-bottom)); z-index:3; }
+.has3d #screen-live .stage-star .stage-idol, .has3d #screen-live .idol-spot, .has3d #screen-live .stage-floor, .has3d #screen-live .spot { display:none; }
+.has3d #screen-live .host3d { z-index:0; }
+.has3d #screen-live .stage-star { z-index:2; }
+.has3d .lanes-wrap { background:linear-gradient(180deg,rgba(8,10,16,0),rgba(8,10,16,.25) 35%,rgba(8,10,16,.5)); }
+@media (max-width:760px){ .has3d .preview-stage { height:48vh; } }
+@media (max-height:520px) and (orientation:landscape){ .has3d .preview-stage { height:78vh; } }
