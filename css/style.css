@@ -150,7 +150,7 @@ h2 { margin:0; font-family:var(--serif); font-weight:600; letter-spacing:.08em; 
 .hud { position:absolute; top:0; left:0; right:0; height:var(--hud); display:flex; align-items:center; gap:10px; padding:8px 12px; color:#fff; z-index:5; background:linear-gradient(180deg,rgba(0,0,0,.55),transparent); box-sizing:border-box; }
 .hud-l { flex:1; min-width:0; } .hud-song { font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .hud-song small { font-weight:400; font-size:11px; margin-left:8px; opacity:.85; }
 .progress { height:4px; background:rgba(255,255,255,.18); border-radius:2px; margin-top:5px; max-width:360px; } .progress i { display:block; height:100%; width:0; background:linear-gradient(90deg,#c9a86a,#e8d5a3); border-radius:2px; }
-.hud-r { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
+.hud-r { display:flex; flex-direction:row; align-items:center; gap:8px; flex-shrink:0; }
 .hud-score { text-align:right; } .hud-score small { display:block; font-size:9px; letter-spacing:.22em; opacity:.75; } .hud-score b { font-size:22px; font-variant-numeric:tabular-nums; text-shadow:0 0 10px rgba(201,168,106,.45); line-height:1; }
 .appeal-meter { position:static; display:flex; align-items:center; gap:5px; color:var(--gold2); font-weight:700; font-size:10px; letter-spacing:.08em; }
 .appeal-meter .meter { width:72px; height:6px; border-radius:2px; background:rgba(255,255,255,.12); border:1px solid var(--gold); overflow:hidden; } .appeal-meter i { display:block; height:100%; width:0; background:linear-gradient(90deg,#c9a86a,#fff6d8); transition:width .15s; }
@@ -165,7 +165,8 @@ h2 { margin:0; font-family:var(--serif); font-weight:600; letter-spacing:.08em; 
 .lane-touch div.down span { background:rgba(232,213,163,.35); }
 .touch-play .lanes-wrap { left:0; right:0; transform:none; width:100%; border-radius:14px 14px 0 0; }
 .touch-play .live-fx { width:100%; }
-.touch-play .lane-touch span { width:min(70px,20vw); height:min(64px,28%); line-height:calc(min(64px,28%) - 4px); font-size:17px; border-radius:10px; }
+.touch-play .lane-touch div { padding-bottom:8px; }
+.touch-play .lane-touch span { width:min(56px,18vw); height:34px; line-height:30px; font-size:15px; border-radius:8px; }
 .combo { color:#fff; opacity:0; }
 .combo.show { opacity:1; } .combo b { display:block; font-family:var(--serif); font-size:48px; line-height:1; text-shadow:0 0 16px rgba(201,168,106,.55); } .combo small { letter-spacing:.3em; font-weight:600; }
 .combo.bump b { animation:bump .15s; } @keyframes bump { from{transform:scale(1.18)} to{transform:scale(1)} }

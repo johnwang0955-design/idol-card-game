@@ -315,7 +315,7 @@ function resize() {
   canvas.width = Math.max(1, r.width * dpr); canvas.height = Math.max(1, r.height * dpr);
   g2.setTransform(dpr, 0, 0, dpr, 0, 0);
   live.W = r.width; live.H = r.height;
-  live.hitY = Math.max(56, r.height - (live.touch ? 78 : 64));
+  live.hitY = Math.max(56, r.height - (live.touch ? 56 : 64));
 }
 window.addEventListener('resize', () => { if (live.running) resize(); });
 
@@ -620,6 +620,13 @@ function equip(ids) {
   SLOTS.forEach(s => { cur.outfit[s.key] = ids[s.key] && CARD_MAP[ids[s.key]] ? ids[s.key] : (ids[s.key] === null ? null : cur.outfit[s.key]); });
   if ($('#screen-coord').classList.contains('active')) renderCoord();
 }
-window.__game = { live, cur, save: () => save, go, startLive, equip, renderCoord, hit, layoutLive, easyTouchOn };
+window.__game = {
+  live, cur, save: () => save, go, startLive, equip, renderCoord, hit, layoutLive, easyTouchOn,
+  tapNext(lane) {
+    const n = live.notes.find(x => !x.res && (lane == null || x.lane === lane));
+    if (n) judge(n, 'perfect');
+    return n || null;
+  },
+};
 preloadIdolAssets();
 })();
