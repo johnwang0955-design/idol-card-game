@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant-TW" data-build="20261010e">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>星光偶像卡牌舞台 Starlight Idol Card Stage</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%9C%B3%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=20261010e">
 </head>
 <body>
 <div id="sky"></div>
@@ -54,6 +54,8 @@
         <div class="live-setup">
           <div class="setup-row"><span class="lbl">曲目</span><div class="seg" id="songSeg"></div></div>
           <div class="setup-row"><span class="lbl">難度</span><div class="seg" id="diffSeg"></div></div>
+          <div class="setup-row"><span class="lbl">觸控</span><label class="chk"><input type="checkbox" id="easyTouch"> 簡易觸控<small>大按鍵・無同步雙押</small></label></div>
+          <div class="setup-row"><span class="lbl">判定</span><input type="range" id="offsetSlider" min="-80" max="80" step="5" value="0"><em id="offsetVal">0ms</em></div>
           <button class="btn btn-main big" id="btnLive">開始 Live</button>
         </div>
       </div>
@@ -76,10 +78,12 @@
         <div class="hud-song" id="hudSong"></div>
         <div class="progress"><i id="hudProgress"></i></div>
       </div>
-      <div class="hud-score"><small>SCORE</small><b id="hudScore">0</b></div>
+      <div class="hud-r">
+        <div class="hud-score"><small>SCORE</small><b id="hudScore">0</b></div>
+        <div class="appeal-meter"><span>APPEAL</span><div class="meter"><i id="appealMeter"></i></div><em id="appealCount">★ 0</em></div>
+      </div>
       <button class="btn small ghost" id="btnQuit">✕</button>
     </div>
-    <div class="appeal-meter"><span>APPEAL</span><div class="meter"><i id="appealMeter"></i></div><em id="appealCount">★ 0</em></div>
     <div class="live-fx">
       <div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
       <div class="judge" id="judge"></div>
@@ -126,10 +130,10 @@
 <!-- 彈窗 -->
 <div class="modal" id="modal"><div class="modal-body"><button class="btn small close" id="modalClose">✕</button><div id="modalContent"></div></div></div>
 
-<script src="assets/assets.js"></script>
-<script src="js/data.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/idol.js"></script>
-<script src="js/game.js"></script>
+<script src="assets/assets.js?v=20261010e"></script>
+<script src="js/data.js?v=20261010e"></script>
+<script src="js/audio.js?v=20261010e"></script>
+<script src="js/idol.js?v=20261010e"></script>
+<script src="js/game.js?v=20261010e"></script>
 </body>
 </html>

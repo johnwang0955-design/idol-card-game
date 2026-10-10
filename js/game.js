@@ -12,14 +12,16 @@ const SAVE_KEY_OLD = 'starlightIdolCardStage.v1';
 function defaultSave() {
   const col = {};
   CARDS.filter(c => c.id.endsWith('_b')).forEach(c => col[c.id] = 1);
-  return { v: 2, collection: col, best: {}, plays: 0 };
+  return { v: 2, collection: col, best: {}, plays: 0, offsetMs: 0, easyTouch: null };
 }
 function migrateSave(raw) {
   if (!raw || typeof raw !== 'object' || !raw.collection) return defaultSave();
   const col = {};
   Object.entries(raw.collection).forEach(([id, n]) => { if (CARD_MAP[id] && n > 0) col[id] = n; });
   if (!Object.keys(col).length) return defaultSave();
-  return { v: 2, collection: col, best: raw.best || {}, plays: raw.plays || 0 };
+  return { v: 2, collection: col, best: raw.best || {}, plays: raw.plays || 0,
+    offsetMs: Number.isFinite(raw.offsetMs) ? raw.offsetMs : 0,
+    easyTouch: raw.easyTouch === true || raw.easyTouch === false ? raw.easyTouch : null };
 }
 let save;
 try {
@@ -157,6 +159,10 @@ function renderCoord() {
     `<div class="grid-note">已收集 ${nOwn} / ${nAll} 張｜Live 後可抽新卡</div>`;
   $('#songSeg').innerHTML = SONGS.map(s => `<button class="${cur.song === s ? 'on' : ''}" data-song="${s.id}">${s.name}<small>BPM ${s.bpm}</small></button>`).join('');
   $('#diffSeg').innerHTML = DIFFS.map(d => `<button class="${cur.diff === d ? 'on' : ''}" data-diff="${d.id}">${d.name}</button>`).join('');
+  const et = $('#easyTouch'); if (et) et.checked = easyTouchOn();
+  const os = $('#offsetSlider'), ov = $('#offsetVal');
+  if (os) os.value = save.offsetMs || 0;
+  if (ov) ov.textContent = (save.offsetMs || 0) + 'ms';
 }
 $('#screen-coord').addEventListener('click', e => {
   const t = e.target.closest('[data-tab]'); if (t) { cur.tab = t.dataset.tab; Synth.sfx('click'); renderCoord(); return; }
@@ -176,10 +182,49 @@ $('#btnAuto').onclick = () => {
   Synth.sfx('appeal'); renderCoord();
 };
 $('#btnLive').onclick = () => startLive();
+$('#easyTouch').onchange = () => { save.easyTouch = $('#easyTouch').checked; persist(); };
+$('#offsetSlider').oninput = () => {
+  save.offsetMs = +$('#offsetSlider').value;
+  $('#offsetVal').textContent = save.offsetMs + 'ms';
+  persist();
+};
+
+function isCoarsePointer() {
+  if (params.has('touch')) return true;
+  if (params.has('notouch')) return false;
+  try { return matchMedia('(pointer:coarse)').matches || matchMedia('(hover:none)').matches; }
+  catch (e) { return 'ontouchstart' in window; }
+}
+function easyTouchOn() {
+  if (save.easyTouch === false) return false;
+  if (save.easyTouch === true) return true;
+  return isCoarsePointer();
+}
+function layoutLive() {
+  const h = window.innerHeight, w = window.innerWidth;
+  const touch = isCoarsePointer() || easyTouchOn();
+  const liveEl = $('#screen-live');
+  liveEl.classList.toggle('touch-play', touch);
+  const hud = h < 500 ? 44 : 52;
+  const minIdol = Math.min(160, Math.round(h * 0.34));
+  let frac = touch ? 0.34 : 0.30;
+  if (h < 560) frac = touch ? 0.38 : 0.32;
+  if (h < 480) frac = touch ? 0.40 : 0.34;
+  let hwy = Math.round(h * frac);
+  hwy = Math.max(touch ? 128 : 108, Math.min(hwy, touch ? 300 : 280, Math.max(108, h - hud - minIdol)));
+  const idolH = Math.max(72, h - hud - hwy);
+  const cap = Math.min(idolH, Math.round(720 * 1.3));
+  liveEl.style.setProperty('--hud', hud + 'px');
+  liveEl.style.setProperty('--hwy', hwy + 'px');
+  liveEl.style.setProperty('--idol-max', cap + 'px');
+  live.touch = touch;
+  live.layout = { w, h, hud, hwy, idolH, cap };
+}
 
 // ---------- 譜面 ----------
-function makeChart(song, diff, bars, zones) {
-  let seed = song.bpm * 7 + diff.id.length * 131 + bars;
+function makeChart(song, diff, bars, zones, opts = {}) {
+  const touchEasy = !!opts.touchEasy, touch = !!opts.touch;
+  let seed = song.bpm * 7 + diff.id.length * 131 + bars + (touchEasy ? 97 : 0);
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const spb16 = 60 / song.bpm / 4, notes = [];
   let prev = 1;
@@ -192,10 +237,23 @@ function makeChart(song, diff, bars, zones) {
       else if (diff.id === 'easy') p = s % 4 === 0 ? (inZone ? 1 : 0.7) : (s % 2 === 0 && inZone ? 0.25 : 0);
       else if (diff.id === 'normal') { p = s % 4 === 0 ? 0.92 : s % 2 === 0 ? (inZone ? 0.55 : 0.3) : 0; chord = s === 0 ? 0.3 : 0; }
       else { p = s % 2 === 0 ? 0.8 : (inZone ? 0.25 : 0.1); chord = s % 8 === 0 ? 0.35 : 0; }
+      if (touchEasy) chord = 0;
+      else if (touch && diff.id === 'hard') chord = s % 8 === 0 ? 0.22 : 0;
+      else if (touch) chord = 0;
       if (rnd() < p) {
         const t = (bar * 16 + s) * spb16;
-        const l = pickLane(-1); notes.push({ t, lane: l, gold: inZone, zone: zones.findIndex(z => bar >= z[0] && bar < z[1]) });
-        if (rnd() < chord) notes.push({ t, lane: pickLane(l), gold: inZone, zone: zones.findIndex(z => bar >= z[0] && bar < z[1]) });
+        let l = pickLane(-1);
+        if (touch && notes.length) {
+          const last = notes[notes.length - 1];
+          const gap = touchEasy ? 0.16 : 0.11;
+          if (t - last.t < gap && last.lane !== l) l = last.lane;
+        }
+        notes.push({ t, lane: l, gold: inZone, zone: zones.findIndex(z => bar >= z[0] && bar < z[1]) });
+        if (rnd() < chord) {
+          let l2 = pickLane(l);
+          if (touch && Math.abs(l2 - l) === 1) l2 = (l + 2) % 4;
+          if (l2 !== l) notes.push({ t, lane: l2, gold: inZone, zone: zones.findIndex(z => bar >= z[0] && bar < z[1]) });
+        }
         prev = l;
       }
     }
@@ -204,9 +262,10 @@ function makeChart(song, diff, bars, zones) {
 }
 
 // ---------- Live ----------
-const JUDGE = { perfect: 0.05, great: 0.09, good: 0.13 };
+const JUDGE_KB = { perfect: 0.05, great: 0.09, good: 0.13 };
+const JUDGE_TOUCH = { perfect: 0.07, great: 0.11, good: 0.16 };
 const LANE_COLORS = ['#ff6fae', '#7d8cff', '#3fd6ff', '#5fe39a'];
-const live = { running: false };
+const live = { running: false, press: [0, 0, 0, 0] };
 const canvas = $('#laneCanvas'), g2 = canvas.getContext('2d');
 let useAudioClock = false;
 const clock = () => useAudioClock ? Synth.ctx.currentTime : performance.now() / 1000;
@@ -219,18 +278,22 @@ async function startLive() {
   const bars = SHORT ? 10 : 26;
   const zones = SHORT ? [[4, 6]] : [[7, 9], [15, 17], [22, 25]];
   const spb16 = 60 / song.bpm / 4;
-  const notes = makeChart(song, diff, bars, zones);
+  const touchEasy = easyTouchOn(), touch = isCoarsePointer() || touchEasy;
+  const notes = makeChart(song, diff, bars, zones, { touchEasy, touch });
   const oc = outfitCards(), ap = calcAppeal(oc, cur.idol);
+  const win = touchEasy || touch ? JUDGE_TOUCH : JUDGE_KB;
   Object.assign(live, {
-    running: true, song, diff, notes, zones, ap, oc,
+    running: true, song, diff, notes, zones, ap, oc, win, touch, touchEasy,
     zoneInfo: zones.map((z, i) => ({ start: z[0] * 16 * spb16, end: z[1] * 16 * spb16, total: notes.filter(n => n.zone === i).length, hit: 0, done: false, announced: false })),
     start: clock() + 3, end: bars * 16 * spb16, score: 0, combo: 0, maxCombo: 0,
     counts: { perfect: 0, great: 0, good: 0, miss: 0 }, appeals: 0, appealBonus: 0,
-    mult: 1 + ap.total / 8000, effects: [], press: [0, 0, 0, 0], approach: diff.approach,
+    mult: 1 + ap.total / 8000, effects: [], press: [0, 0, 0, 0],
+    approach: diff.approach * (touchEasy || touch ? 1.35 : 1),
     lastCount: 4, finished: false,
   });
   if (ctx) Synth.start(song, bars, useAudioClock ? live.start : ctx.currentTime + 3);
   go('live');
+  layoutLive();
   mountIdol($('#stageIdol'), cur.idol, oc, 'dance');
   const beat = (60 / song.bpm) + 's';
   $('#screen-live').style.setProperty('--beat', beat);
@@ -247,27 +310,32 @@ function stopLive() { live.running = false; Synth.stop(); }
 $('#btnQuit').onclick = () => { stopLive(); go('coord'); };
 
 function resize() {
+  layoutLive();
   const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = r.width * dpr; canvas.height = r.height * dpr;
+  canvas.width = Math.max(1, r.width * dpr); canvas.height = Math.max(1, r.height * dpr);
   g2.setTransform(dpr, 0, 0, dpr, 0, 0);
-  live.W = r.width; live.H = r.height; live.hitY = Math.max(72, r.height - 64);
+  live.W = r.width; live.H = r.height;
+  live.hitY = Math.max(56, r.height - (live.touch ? 56 : 64));
 }
 window.addEventListener('resize', () => { if (live.running) resize(); });
 
-function now() { return clock() - live.start; }
+function now() { return clock() - live.start - (save.offsetMs || 0) / 1000; }
+function windows() { return live.win || JUDGE_KB; }
 
 function hit(lane) {
   if (!live.running) return;
-  live.press[lane] = 1;
   const t = now();
   let best = null, bd = 1;
   for (const n of live.notes) {
     if (n.res || n.lane !== lane) continue;
     const d = Math.abs(n.t - t);
     if (d < bd) { bd = d; best = n; }
-    if (n.t - t > JUDGE.good) break;
+    if (n.t - t > windows().good) break;
   }
-  if (best && bd <= JUDGE.good) judge(best, bd <= JUDGE.perfect ? 'perfect' : bd <= JUDGE.great ? 'great' : 'good');
+  if (best && bd <= windows().good) {
+    const w = windows();
+    judge(best, bd <= w.perfect ? 'perfect' : bd <= w.great ? 'great' : 'good');
+  }
 }
 function judge(n, res) {
   n.res = res; live.counts[res]++;
@@ -278,6 +346,7 @@ function judge(n, res) {
   if (n.zone >= 0) live.zoneInfo[n.zone].hit += res === 'good' ? 0.5 : 1;
   live.effects.push({ lane: n.lane, t: performance.now(), gold: n.gold, res });
   Synth.sfx(res === 'perfect' ? 'perfect' : 'hit');
+  if (live.touch && navigator.vibrate) { try { navigator.vibrate(res === 'perfect' ? 12 : 8); } catch (e) {} }
   showJudge(res);
   if (res === 'perfect' && live.combo >= 4) sparkleIdol(live.combo);
 }
@@ -316,14 +385,40 @@ function banner(text, cls = '') {
 const KEYMAP = { KeyD: 0, KeyF: 1, KeyJ: 2, KeyK: 3 };
 window.addEventListener('keydown', e => {
   if (!live.running) return;
-  if (e.code in KEYMAP) { e.preventDefault(); if (!e.repeat) hit(KEYMAP[e.code]); }
+  if (e.code in KEYMAP) { e.preventDefault(); if (!e.repeat) { live.press[KEYMAP[e.code]] = 1; hit(KEYMAP[e.code]); } }
   if (e.code === 'Escape') { stopLive(); go('coord'); }
 });
-window.addEventListener('keyup', e => { if (e.code in KEYMAP) { live.press[KEYMAP[e.code]] = 0; } });
-$$('#laneTouch > div').forEach(el => {
-  el.addEventListener('pointerdown', e => { e.preventDefault(); hit(+el.dataset.lane); el.classList.add('down'); });
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => el.addEventListener(ev, () => { live.press[+el.dataset.lane] = 0; el.classList.remove('down'); }));
-});
+window.addEventListener('keyup', e => { if (e.code in KEYMAP) live.press[KEYMAP[e.code]] = 0; });
+const padPointers = new Map();
+function pressLane(lane, on) {
+  if (lane < 0 || lane > 3) return;
+  live.press[lane] = Math.max(0, (live.press[lane] || 0) + (on ? 1 : -1));
+  const el = $(`#laneTouch [data-lane="${lane}"]`);
+  if (el) el.classList.toggle('down', live.press[lane] > 0);
+}
+function bindPad(el) {
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const lane = +el.dataset.lane;
+    if (padPointers.has(e.pointerId)) return;
+    padPointers.set(e.pointerId, lane);
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}
+    hit(lane);
+    pressLane(lane, true);
+  });
+  const end = e => {
+    const lane = padPointers.get(e.pointerId);
+    if (lane == null) return;
+    padPointers.delete(e.pointerId);
+    pressLane(lane, false);
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+$$('#laneTouch > div').forEach(bindPad);
+document.addEventListener('touchmove', e => { if (live.running) e.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', e => { if (live.running) e.preventDefault(); });
+document.addEventListener('gesturestart', e => e.preventDefault());
 
 function loop() {
   if (!live.running) return;
@@ -337,12 +432,12 @@ function loop() {
   // 自動演奏（測試用）
   if (AUTOPLAY) for (const n of live.notes) { if (!n.res && n.t <= t) { live.press[n.lane] = 1; setTimeout(() => live.press[n.lane] = 0, 80); judge(n, 'perfect'); } }
   // Miss
-  for (const n of live.notes) { if (!n.res && t - n.t > JUDGE.good) judge(n, 'miss'); if (n.t > t) break; }
+  for (const n of live.notes) { if (!n.res && t - n.t > windows().good) judge(n, 'miss'); if (n.t > t) break; }
   // Appeal 區段
   live.zoneInfo.forEach((z, i) => {
     if (!z.announced && t >= z.start - 1.2) { z.announced = true; banner('✦ APPEAL CHANCE ✦<small>金色音符全部打中，發動特別演出！</small>', 'chance'); }
     if (t >= z.start && t < z.end) $('#appealMeter').style.width = (z.total ? z.hit / z.total * 100 : 0) + '%';
-    if (!z.done && t >= z.end + JUDGE.good + 0.05) {
+    if (!z.done && t >= z.end + windows().good + 0.05) {
       z.done = true;
       const ratio = z.total ? z.hit / z.total : 0;
       if (ratio >= 0.8) {
@@ -482,7 +577,7 @@ function showHelp() {
   <ol class="help">
     <li><b>選擇偶像</b>：三位原創偶像各有屬性（酷炫／優雅／流行）。</li>
     <li><b>卡片搭配</b>：從卡冊挑選「上衣・下身・鞋子・配件」，各欄也可「不穿」。<br>・卡片屬性與偶像相同：該卡魅力 +15%<br>・同品牌 3 件 ×1.2，4 件套裝 ×1.5<br>・全 SR 以上 ×1.1，全 PR ×1.2<br>總魅力越高，Live 得分倍率越高！</li>
-    <li><b>舞台 Live</b>：音符落到判定線時按下對應按鍵或點擊軌道。<br>鍵盤：<kbd>D</kbd> <kbd>F</kbd> <kbd>J</kbd> <kbd>K</kbd>　｜　手機：直接點擊四條軌道<br>判定：PERFECT ＞ GREAT ＞ GOOD ＞ MISS</li>
+    <li><b>舞台 Live</b>：音符落到判定線時按下對應按鍵或點擊軌道。<br>鍵盤：<kbd>D</kbd> <kbd>F</kbd> <kbd>J</kbd> <kbd>K</kbd>　｜　手機：點擊下方大按鍵（支援多指同步）<br>開啟「簡易觸控」時取消同步雙押、加寬判定、拉長預覽時間。<br>判定：PERFECT ＞ GREAT ＞ GOOD ＞ MISS　｜　可在搭配頁調整判定偏移</li>
     <li><b>APPEAL CHANCE</b>：金色星形音符出現時，命中率達 80% 即發動「特別演出」，獲得大量加分！</li>
     <li><b>結果與抽卡</b>：依準確率評價 S／A／B／C，評價越高越容易抽到 SR、PR 卡，卡片會自動存進卡冊（瀏覽器 localStorage）。</li>
   </ol>`);
@@ -511,6 +606,7 @@ if (shot && SHOTS[shot]) {
     $('#cutinName').innerHTML = `「${brandOf(cur.idol.brand).special}」`;
     $('#hudSong').innerHTML = `♪ ${cur.song.name}<small>特別演出</small>`;
     go('live');
+    layoutLive();
     sparkleIdol(12);
     requestAnimationFrame(() => { const ci = $('#cutin'); ci.classList.remove('show'); void ci.offsetWidth; ci.classList.add('show'); });
   } else if (s.screen === 'result') {
@@ -524,6 +620,13 @@ function equip(ids) {
   SLOTS.forEach(s => { cur.outfit[s.key] = ids[s.key] && CARD_MAP[ids[s.key]] ? ids[s.key] : (ids[s.key] === null ? null : cur.outfit[s.key]); });
   if ($('#screen-coord').classList.contains('active')) renderCoord();
 }
-window.__game = { live, cur, save: () => save, go, startLive, equip, renderCoord };
+window.__game = {
+  live, cur, save: () => save, go, startLive, equip, renderCoord, hit, layoutLive, easyTouchOn,
+  tapNext(lane) {
+    const n = live.notes.find(x => !x.res && (lane == null || x.lane === lane));
+    if (n) judge(n, 'perfect');
+    return n || null;
+  },
+};
 preloadIdolAssets();
 })();
