@@ -232,7 +232,9 @@ async function startLive() {
   if (ctx) Synth.start(song, bars, useAudioClock ? live.start : ctx.currentTime + 3);
   go('live');
   mountIdol($('#stageIdol'), cur.idol, oc, 'dance');
-  $('#stageIdol').style.setProperty('--beat', (60 / song.bpm) + 's');
+  const beat = (60 / song.bpm) + 's';
+  $('#screen-live').style.setProperty('--beat', beat);
+  $('#stageIdol').style.setProperty('--beat', beat);
   $('#cutinIdol').src = portraitSrc(cur.idol);
   $('#hudSong').innerHTML = `♪ ${song.name}<small>${diff.name}｜魅力 ${ap.total}</small>`;
   $('#hudScore').textContent = '0';
@@ -248,7 +250,7 @@ function resize() {
   const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = r.width * dpr; canvas.height = r.height * dpr;
   g2.setTransform(dpr, 0, 0, dpr, 0, 0);
-  live.W = r.width; live.H = r.height; live.hitY = r.height - 90;
+  live.W = r.width; live.H = r.height; live.hitY = Math.max(72, r.height - 64);
 }
 window.addEventListener('resize', () => { if (live.running) resize(); });
 
@@ -277,6 +279,7 @@ function judge(n, res) {
   live.effects.push({ lane: n.lane, t: performance.now(), gold: n.gold, res });
   Synth.sfx(res === 'perfect' ? 'perfect' : 'hit');
   showJudge(res);
+  if (res === 'perfect' && live.combo >= 4) sparkleIdol(live.combo);
 }
 function showJudge(res) {
   const j = $('#judge');
@@ -286,6 +289,24 @@ function showJudge(res) {
   c.querySelector('b').textContent = live.combo;
   c.classList.toggle('show', live.combo >= 3);
   if (live.combo >= 3) { c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump'); }
+}
+function sparkleIdol(combo) {
+  const host = $('#idolSparkles');
+  if (!host) return;
+  const n = combo >= 20 ? 18 : combo >= 10 ? 14 : 10;
+  host.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('i');
+    const a = (i / n) * Math.PI * 2 + Math.random() * 0.4;
+    const r = 70 + Math.random() * 90;
+    s.style.setProperty('--x', (Math.cos(a) * r) + 'px');
+    s.style.setProperty('--y', (Math.sin(a) * r * 1.15) + 'px');
+    s.style.animationDelay = (Math.random() * 0.12) + 's';
+    host.appendChild(s);
+  }
+  host.classList.remove('burst');
+  void host.offsetWidth;
+  host.classList.add('burst');
 }
 function banner(text, cls = '') {
   const b = $('#banner'); b.className = 'banner ' + cls; b.innerHTML = text; void b.offsetWidth; b.classList.add('show');
@@ -330,6 +351,7 @@ function loop() {
         $('#cutinName').innerHTML = `「${live.ap.special}」<em>+${bonus.toLocaleString()}</em>`;
         const ci = $('#cutin'); ci.classList.remove('show'); void ci.offsetWidth; ci.classList.add('show');
         $('#screen-live').classList.add('fever'); setTimeout(() => $('#screen-live').classList.remove('fever'), 2200);
+        sparkleIdol(20);
         Synth.sfx('appeal');
         $('#appealCount').textContent = '★ ' + live.appeals;
       } else banner(`Appeal 失敗…<small>命中率 ${Math.round(ratio * 100)}%（需要 80%）</small>`, 'fail');
@@ -349,7 +371,7 @@ function draw(t) {
   // 軌道
   for (let i = 0; i < 4; i++) {
     const grd = g2.createLinearGradient(0, 0, 0, H);
-    grd.addColorStop(0, 'rgba(255,255,255,0)'); grd.addColorStop(1, live.press[i] ? hexA(LANE_COLORS[i], 0.45) : 'rgba(255,255,255,0.08)');
+    grd.addColorStop(0, 'rgba(255,255,255,0)'); grd.addColorStop(1, live.press[i] ? hexA(LANE_COLORS[i], 0.36) : 'rgba(255,255,255,0.05)');
     g2.fillStyle = grd; g2.fillRect(i * lw + 2, 0, lw - 4, H);
   }
   g2.strokeStyle = 'rgba(255,255,255,.25)'; g2.lineWidth = 1;
@@ -484,10 +506,12 @@ if (shot && SHOTS[shot]) {
   if (s.screen === 'live') startLive();
   else if (s.screen === 'appeal') {
     mountIdol($('#stageIdol'), cur.idol, s.outfit, 'dance');
+    $('#screen-live').style.setProperty('--beat', '0.48s');
     $('#cutinIdol').src = portraitSrc(cur.idol);
     $('#cutinName').innerHTML = `「${brandOf(cur.idol.brand).special}」`;
     $('#hudSong').innerHTML = `♪ ${cur.song.name}<small>特別演出</small>`;
     go('live');
+    sparkleIdol(12);
     requestAnimationFrame(() => { const ci = $('#cutin'); ci.classList.remove('show'); void ci.offsetWidth; ci.classList.add('show'); });
   } else if (s.screen === 'result') {
     live.oc = outfitCards(); live.counts = { perfect: 42, great: 8, good: 2, miss: 1 }; live.maxCombo = 40; live.appeals = 2; live.zones = [1, 2]; live.appealBonus = 8000; live.score = 128000; live.song = cur.song; live.diff = cur.diff; live.notes = new Array(53);

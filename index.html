@@ -65,7 +65,11 @@
     <div class="stage-bg">
       <div class="spot s1"></div><div class="spot s2"></div><div class="spot s3"></div>
       <div class="stage-floor"></div>
-      <div class="stage-idol" id="stageIdol"></div>
+      <div class="idol-spot" id="idolSpot"></div>
+      <div class="stage-star" id="stageStar">
+        <div class="stage-idol" id="stageIdol"></div>
+        <div class="idol-sparkles" id="idolSparkles" aria-hidden="true"></div>
+      </div>
     </div>
     <div class="hud">
       <div class="hud-l">
@@ -76,13 +80,15 @@
       <button class="btn small ghost" id="btnQuit">✕</button>
     </div>
     <div class="appeal-meter"><span>APPEAL</span><div class="meter"><i id="appealMeter"></i></div><em id="appealCount">★ 0</em></div>
+    <div class="live-fx">
+      <div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
+      <div class="judge" id="judge"></div>
+    </div>
     <div class="lanes-wrap" id="lanesWrap">
       <canvas id="laneCanvas"></canvas>
       <div class="lane-touch" id="laneTouch">
         <div data-lane="0"><span>D</span></div><div data-lane="1"><span>F</span></div><div data-lane="2"><span>J</span></div><div data-lane="3"><span>K</span></div>
       </div>
-      <div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
-      <div class="judge" id="judge"></div>
     </div>
     <div class="banner" id="banner"></div>
     <div class="cutin" id="cutin"><div class="cutin-band"><img id="cutinIdol" alt=""><div class="cutin-text"><b>SPECIAL APPEAL</b><span id="cutinName"></span></div></div></div>
