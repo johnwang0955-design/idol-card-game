@@ -140,8 +140,8 @@ h2 { margin:0; font-family:var(--serif); font-weight:600; letter-spacing:.08em; 
 .appeal-meter { position:absolute; top:62px; right:14px; z-index:5; display:flex; align-items:center; gap:6px; color:var(--gold2); font-weight:700; font-size:12px; letter-spacing:.08em; }
 .appeal-meter .meter { width:120px; height:8px; border-radius:2px; background:rgba(255,255,255,.12); border:1px solid var(--gold); overflow:hidden; } .appeal-meter i { display:block; height:100%; width:0; background:linear-gradient(90deg,#c9a86a,#fff6d8); transition:width .15s; }
 .appeal-meter em { font-style:normal; }
-.live-fx { position:absolute; left:50%; bottom:calc(var(--hwy) + 6px); transform:translateX(-50%); width:min(400px,94vw); z-index:4; pointer-events:none; text-align:center; }
-.lanes-wrap { position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:min(400px,94vw); height:var(--hwy); z-index:3; background:linear-gradient(180deg,rgba(8,10,16,.12),rgba(8,10,16,.38) 28%,rgba(8,10,16,.52)); border:1px solid rgba(232,213,163,.26); border-bottom:0; border-radius:18px 18px 0 0; box-shadow:0 -12px 36px rgba(0,0,0,.22); backdrop-filter:blur(1.5px); }
+.live-fx { position:absolute; left:50%; bottom:calc(var(--hwy) - 36px); transform:translateX(-50%); width:min(400px,94vw); z-index:4; pointer-events:none; text-align:center; }
+.lanes-wrap { position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:min(400px,94vw); height:var(--hwy); z-index:3; background:linear-gradient(180deg,rgba(8,10,16,.05),rgba(8,10,16,.22) 30%,rgba(8,10,16,.38)); border:1px solid rgba(232,213,163,.22); border-bottom:0; border-radius:18px 18px 0 0; box-shadow:0 -10px 28px rgba(0,0,0,.16); }
 #laneCanvas { width:100%; height:100%; display:block; }
 .lane-touch { position:absolute; inset:0; display:flex; }
 .lane-touch div { flex:1; display:flex; align-items:flex-end; justify-content:center; padding-bottom:16px; cursor:pointer; }
@@ -213,10 +213,11 @@ h2 { margin:0; font-family:var(--serif); font-weight:600; letter-spacing:.08em; 
   .stage-star { top:48px; bottom:calc(var(--hwy) - 10px); }
   .stage-idol { opacity:1; height:100%; filter:drop-shadow(0 0 22px rgba(232,213,163,.4)) brightness(1.07); }
   .lanes-wrap { width:min(420px,96vw); }
-  .live-fx { width:min(420px,96vw); }
-  .combo b { font-size:40px; }
-  .judge { font-size:24px; }
-  .appeal-meter { top:58px; } .appeal-meter .meter { width:80px; }
+  .live-fx { width:min(420px,96vw); bottom:calc(var(--hwy) - 30px); }
+  .combo b { font-size:36px; }
+  .judge { font-size:22px; }
+  .appeal-meter { top:44px; right:52px; font-size:10px; }
+  .appeal-meter .meter { width:64px; height:6px; }
   .cutin-band { height:34vw; }
   .result-idol { height:240px; }
   .menu .btn { min-width:200px; }
