@@ -91,7 +91,7 @@ const brandOf = id => BRANDS.find(b => b.id === id);
 const IDOLS = [
   { id: 'haruka', name: '晴夏', en: 'Haruka', type: 'cute', brand: 'sugar', hair: '#c47a8c', hair2: '#8f4e62', eye: '#8a3a52', style: 'twin',
     desc: '以柔美聲線走紅的新世代偶像，舞台上永遠帶著從容笑意。', catch: '「今晚，也請與我共舞。」' },
-  { id: 'rinne', name: '凜音', en: 'Rinne', type: 'cool', brand: 'midnight', hair: '#2a2d4a', hair2: '#151722', eye: '#4aa8c8', style: 'long',
+  { id: 'rinne', name: '凜音', en: 'Rinne', type: 'cool', brand: 'midnight', hair: '#4a4e6e', hair2: '#2a2d44', eye: '#5ec4e0', style: 'long',
     desc: '冷冽的頂尖舞者，把每一步都練成刀鋒。', catch: '「跟上我的節奏。」' },
   { id: 'ria', name: '莉亞', en: 'Ria', type: 'pop', brand: 'soda', hair: '#c8883a', hair2: '#8a5420', eye: '#2d7a62', style: 'side',
     desc: '時尚與節奏並重的創作型偶像，鏡頭前後都是她的舞台。', catch: '「把這夜，收進鏡頭裡。」' },

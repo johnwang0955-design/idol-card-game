@@ -114,8 +114,8 @@ h2 { margin:0; font-family:var(--serif); font-weight:600; letter-spacing:.08em; 
 .stage-floor { position:absolute; bottom:0; left:0; right:0; height:22vh; background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(201,168,106,.18)); clip-path:polygon(10% 0,90% 0,100% 100%,0 100%); }
 .stage-idol { position:absolute; bottom:4vh; left:4vw; height:80vh; opacity:.96; } .stage-idol svg { height:100%; }
 .dance { animation:dance var(--beat,.47s) ease-in-out infinite alternate; transform-origin:50% 100%; }
-.dance .arm-l { animation:armL calc(var(--beat,.47s)*2) ease-in-out infinite; transform-origin:76px 88px; }
-.dance .arm-r { animation:armR calc(var(--beat,.47s)*2) ease-in-out infinite; transform-origin:124px 88px; }
+.dance .arm-l { animation:armL calc(var(--beat,.47s)*2) ease-in-out infinite; transform-origin:74px 90px; }
+.dance .arm-r { animation:armR calc(var(--beat,.47s)*2) ease-in-out infinite; transform-origin:126px 90px; }
 @keyframes dance { from{transform:translateY(0) rotate(-2deg)} to{transform:translateY(-8px) rotate(2deg)} }
 @keyframes armL { 0%,100%{transform:rotate(0)} 50%{transform:rotate(36deg)} } @keyframes armR { 0%,100%{transform:rotate(0)} 50%{transform:rotate(-70deg)} }
 .svg-spark { animation:twinkle 2.8s infinite; }

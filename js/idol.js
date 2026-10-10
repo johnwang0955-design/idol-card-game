@@ -8,12 +8,12 @@ function shade(hex, amt) {
 }
 
 const P = {
-  cx: 100, headY: 44, headR: 20,
-  earL: [80, 50], earR: [120, 50], lobeL: [79, 58], lobeR: [121, 58],
-  neckY: 66, shY: 88, shL: 76, shR: 124,
-  chestY: 108, waistY: 140, hipY: 166, inseam: 172,
-  kneeY: 274, ankleY: 368, soleY: 392,
-  handL: [64, 204], handR: [136, 204],
+  cx: 100, headY: 46, headR: 23,
+  earL: [78, 50], earR: [122, 50], lobeL: [77, 60], lobeR: [123, 60],
+  neckY: 68, shY: 90, shL: 74, shR: 126,
+  chestY: 110, waistY: 142, hipY: 168, inseam: 174,
+  kneeY: 276, ankleY: 368, soleY: 394,
+  handL: [62, 206], handR: [138, 206],
 };
 
 function idolSVG(idol, outfit = {}, cls = '') {
@@ -70,25 +70,33 @@ function idolSVG(idol, outfit = {}, cls = '') {
 }
 
 function hairSVG(idol, h, h2, accent) {
+  const hi = shade(h, 36);
   let back = '', front = '';
   if (idol.style === 'twin') {
-    back = `<path d="M78 52 C52 70 48 130 58 210 C64 170 70 110 86 78Z" fill="${h2}"/>
-            <path d="M122 52 C148 70 152 130 142 210 C136 170 130 110 114 78Z" fill="${h2}"/>
-            <path d="M80 38 Q100 20 120 38 Q128 58 118 70 L82 70 Q72 56 80 38Z" fill="${h}"/>`;
-    front = `<path d="M82 40 Q88 52 84 64" fill="none" stroke="${h2}" stroke-width="2.2"/>
-             <path d="M118 40 Q112 52 116 64" fill="none" stroke="${h2}" stroke-width="2.2"/>
-             <path d="M86 36 Q100 44 114 36" fill="${h}"/>`;
+    back = `<path d="M76 54 C46 78 42 150 56 230 C64 180 72 112 88 80Z" fill="${h2}"/>
+            <path d="M124 54 C154 78 158 150 144 230 C136 180 128 112 112 80Z" fill="${h2}"/>
+            <path d="M78 36 Q100 16 122 36 Q132 60 120 74 L80 74 Q68 56 78 36Z" fill="${h}"/>
+            <path d="M52 140 C48 180 56 210 64 220" fill="none" stroke="${hi}" stroke-width="2" opacity=".45"/>
+            <path d="M148 140 C152 180 144 210 136 220" fill="none" stroke="${hi}" stroke-width="2" opacity=".45"/>`;
+    front = `<path d="M80 38 Q86 56 78 70" fill="${h}"/>
+             <path d="M120 38 Q114 56 122 70" fill="${h}"/>
+             <path d="M84 34 Q100 46 116 34" fill="${hi}" opacity=".55"/>`;
   } else if (idol.style === 'long') {
-    back = `<path d="M78 50 C56 90 54 200 62 310 L80 318 L90 80Z" fill="${h2}"/>
-            <path d="M122 50 C144 90 146 200 138 310 L120 318 L110 80Z" fill="${h2}"/>
-            <path d="M80 36 Q100 18 120 36 Q130 62 118 72 L82 72 Q70 58 80 36Z" fill="${h}"/>`;
-    front = `<path d="M84 38 Q90 56 82 68" fill="${h}"/>
-             <path d="M116 38 Q110 56 118 68" fill="${h}"/>`;
+    back = `<path d="M76 52 C50 96 46 210 58 330 L82 336 L92 80Z" fill="${h2}" stroke="${hi}" stroke-width="1.2"/>
+            <path d="M124 52 C150 96 154 210 142 330 L118 336 L108 80Z" fill="${h2}" stroke="${hi}" stroke-width="1.2"/>
+            <path d="M78 34 Q100 14 122 34 Q134 64 120 76 L80 76 Q66 56 78 34Z" fill="${h}" stroke="${hi}" stroke-width="1"/>
+            <path d="M60 160 C56 220 64 280 70 310" fill="none" stroke="${hi}" stroke-width="2.4" opacity=".4"/>
+            <path d="M140 160 C144 220 136 280 130 310" fill="none" stroke="${hi}" stroke-width="2.4" opacity=".4"/>`;
+    front = `<path d="M82 36 Q90 58 76 72" fill="${h}"/>
+             <path d="M118 36 Q110 58 124 72" fill="${h}"/>
+             <path d="M86 32 Q100 42 114 32" fill="${hi}" opacity=".5"/>`;
   } else {
-    back = `<path d="M80 40 Q100 22 118 40 Q128 64 116 74 L84 74 Q72 56 80 40Z" fill="${h}"/>
-            <path d="M118 48 C156 70 160 160 148 250 C146 200 140 110 112 78Z" fill="${h2}"/>`;
-    front = `<path d="M118 36 Q132 48 126 70" fill="${h}"/>
-             <path d="M84 38 Q92 54 80 64" fill="${h}"/>`;
+    back = `<path d="M78 36 Q100 14 120 36 Q132 66 118 78 L82 78 Q68 54 78 36Z" fill="${h}"/>
+            <path d="M118 48 C160 74 166 180 150 270 C148 210 140 110 110 80Z" fill="${h2}"/>
+            <path d="M150 140 C158 190 152 230 140 250" fill="none" stroke="${hi}" stroke-width="2.2" opacity=".45"/>`;
+    front = `<path d="M120 34 Q138 50 130 74" fill="${h}"/>
+             <path d="M82 36 Q92 56 76 68" fill="${h}"/>
+             <path d="M86 32 Q100 42 112 32" fill="${hi}" opacity=".5"/>`;
   }
   return { back, front };
 }
@@ -105,27 +113,29 @@ function neckSVG(skin) {
 function faceSVG(idol) {
   const e = idol.eye;
   return `<g class="eyes">
-    <path d="M86 42 Q91 39 97 42" fill="none" stroke="${shade(e, -40)}" stroke-width="1.1" stroke-linecap="round"/>
-    <path d="M103 42 Q109 39 114 42" fill="none" stroke="${shade(e, -40)}" stroke-width="1.1" stroke-linecap="round"/>
-    <ellipse cx="91.5" cy="48" rx="5.2" ry="5.8" fill="${e}"/>
-    <ellipse cx="108.5" cy="48" rx="5.2" ry="5.8" fill="${e}"/>
-    <circle cx="93" cy="46.4" r="1.7" fill="#fff"/><circle cx="110" cy="46.4" r="1.7" fill="#fff"/>
-    <path d="M86.5 48.5 Q91.5 51 96.5 48.5" fill="none" stroke="${shade(e, -50)}" stroke-width=".7" opacity=".45"/>
-    <path d="M103.5 48.5 Q108.5 51 113.5 48.5" fill="none" stroke="${shade(e, -50)}" stroke-width=".7" opacity=".45"/>
+    <path d="M84 42 Q92 38 99 43" fill="none" stroke="${shade(e, -45)}" stroke-width="1.35" stroke-linecap="round"/>
+    <path d="M101 43 Q108 38 116 42" fill="none" stroke="${shade(e, -45)}" stroke-width="1.35" stroke-linecap="round"/>
+    <ellipse cx="91" cy="49" rx="6.2" ry="6.6" fill="${e}"/>
+    <ellipse cx="109" cy="49" rx="6.2" ry="6.6" fill="${e}"/>
+    <ellipse cx="91" cy="49" rx="3.2" ry="3.4" fill="#1a1220"/>
+    <ellipse cx="109" cy="49" rx="3.2" ry="3.4" fill="#1a1220"/>
+    <circle cx="93.2" cy="47" r="2" fill="#fff"/><circle cx="111.2" cy="47" r="2" fill="#fff"/>
+    <path d="M85 51 Q91 54 97 51" fill="none" stroke="${shade(e, -40)}" stroke-width=".8" opacity=".5"/>
+    <path d="M103 51 Q109 54 115 51" fill="none" stroke="${shade(e, -40)}" stroke-width=".8" opacity=".5"/>
   </g>
-  <path d="M99 52 L100.8 57 L98.6 57.2" fill="none" stroke="#c9a090" stroke-width=".85" stroke-linejoin="round"/>
-  <path d="M95.5 61.2 Q100 64.2 104.5 61.2" fill="none" stroke="#b05a62" stroke-width="1.35" stroke-linecap="round"/>
-  <ellipse cx="84" cy="56" rx="4.2" ry="2.2" fill="#e8a0a0" opacity=".28"/>
-  <ellipse cx="116" cy="56" rx="4.2" ry="2.2" fill="#e8a0a0" opacity=".28"/>`;
+  <path d="M98.4 53.5 L101 59.2 L97.8 59.4" fill="none" stroke="#c9a090" stroke-width="1" stroke-linejoin="round"/>
+  <path d="M94.5 63 Q100 67 105.5 63" fill="none" stroke="#a04a58" stroke-width="1.6" stroke-linecap="round"/>
+  <ellipse cx="83" cy="58" rx="5" ry="2.6" fill="#e8a0a0" opacity=".32"/>
+  <ellipse cx="117" cy="58" rx="5" ry="2.6" fill="#e8a0a0" opacity=".32"/>`;
 }
 
 function armSVG(side, skin) {
   if (side === 'l') {
-    return `<path d="M78 90 Q62 140 64 200" stroke="${skin}" stroke-width="8.5" fill="none" stroke-linecap="round"/>
-            <ellipse cx="64" cy="204" rx="5.2" ry="6" fill="${skin}"/>`;
+    return `<path d="M78 90 C60 128 56 168 60 200 C62 208 70 208 68 198 C64 160 70 124 80 96Z" fill="${skin}"/>
+            <ellipse cx="62" cy="206" rx="6.2" ry="7" fill="${skin}"/>`;
   }
-  return `<path d="M122 90 Q138 140 136 200" stroke="${skin}" stroke-width="8.5" fill="none" stroke-linecap="round"/>
-          <ellipse cx="136" cy="204" rx="5.2" ry="6" fill="${skin}"/>`;
+  return `<path d="M122 90 C140 128 144 168 140 200 C138 208 130 208 132 198 C136 160 130 124 120 96Z" fill="${skin}"/>
+          <ellipse cx="138" cy="206" rx="6.2" ry="7" fill="${skin}"/>`;
 }
 
 function sleeveKind(shape) {
@@ -164,10 +174,10 @@ function bottomSVG(shape, uid, bc, bs) {
   const g = `url(#b${uid})`;
   switch (shape) {
     case 'shorts':
-      return `<path d="M80 164 L120 164 L124 176 L122 228 L104 228 L100 176 L96 228 L78 228 L76 176Z" fill="${g}"/>
-              <path d="M80 164 H120 L118 172 H82Z" fill="${shade(bc, -30)}"/>
-              <path d="M99 172 V220" stroke="${bs}" stroke-width="1.2" opacity=".5"/>
-              <rect x="96" y="166" width="8" height="4" rx="1" fill="${bs}"/>`;
+      return `<path d="M78 164 L122 164 L128 178 L124 236 L102 236 L100 178 L98 236 L76 236 L72 178Z" fill="${g}" stroke="${shade(bc, -40)}" stroke-width="1"/>
+              <path d="M78 164 H122 L120 174 H80Z" fill="${shade(bc, -28)}"/>
+              <path d="M99 176 V228" stroke="${bs}" stroke-width="1.4" opacity=".55"/>
+              <rect x="94" y="166" width="12" height="5" rx="1" fill="${bs}"/>`;
     case 'suspender-shorts':
       return `<path d="M81 164 L119 164 L122 174 L120 220 L104 220 L100 174 L96 220 L80 220 L78 174Z" fill="${g}"/>
               <path d="M88 140 L92 166 M108 166 L112 140" stroke="${bc}" stroke-width="3"/>
@@ -178,8 +188,8 @@ function bottomSVG(shape, uid, bc, bs) {
     case 'pencil':
       return `<path d="M80 164 L120 164 L118 186 Q116 280 110 300 L90 300 Q84 280 82 186Z" fill="${g}"/>`;
     case 'slit':
-      return `<path d="M79 164 L121 164 L124 186 Q128 340 118 390 L108 390 Q112 300 100 220 L96 390 L82 390 Q76 320 80 186Z" fill="${g}"/>
-              <path d="M100 220 L96 390" stroke="${bs}" stroke-width="1.4" opacity=".55"/>`;
+      return `<path d="M79 164 L121 164 L124 186 Q128 340 118 390 L108 390 Q112 300 100 220 L96 390 L82 390 Q76 320 80 186Z" fill="${g}" stroke="${shade(bc, -40)}" stroke-width="1"/>
+              <path d="M100 220 L96 390" stroke="${bs}" stroke-width="1.6" opacity=".65"/>`;
     case 'mermaid':
       return `<path d="M80 164 L120 164 L118 190 Q114 260 108 300 Q140 360 146 400 L54 400 Q60 360 92 300 Q86 260 82 190Z" fill="${g}"/>
               <path d="M70 370 Q100 350 130 370" fill="none" stroke="${bs}" stroke-width="1.2" opacity=".5"/>`;
@@ -223,8 +233,8 @@ function bottomSVG(shape, uid, bc, bs) {
 
 function shoesSVG(shape, uid, sc, ss) {
   const heel = (h = 18) =>
-    `<path d="M82 392 L86 392 L84 ${392 + h} L80 ${392 + h}Z" fill="${shade(sc, -30)}"/>
-     <path d="M118 392 L114 392 L116 ${392 + h} L120 ${392 + h}Z" fill="${shade(sc, -30)}"/>`;
+    `<path d="M80 390 L88 390 L85 ${392 + h} L78 ${392 + h}Z" fill="${shade(sc, -35)}" stroke="${shade(sc, -50)}" stroke-width=".6"/>
+     <path d="M120 390 L112 390 L115 ${392 + h} L122 ${392 + h}Z" fill="${shade(sc, -35)}" stroke="${shade(sc, -50)}" stroke-width=".6"/>`;
   const foot = (open = false) => open
     ? `<path d="M78 366 L86 366 L92 390 L72 390 Q74 376 78 366Z" fill="url(#s${uid})"/>
        <path d="M114 366 L122 366 L128 390 L108 390 Q110 376 114 366Z" fill="url(#s${uid})"/>`
@@ -292,11 +302,11 @@ function topSVG(shape, uid, tc, ts) {
   const g = `url(#t${uid})`;
   switch (shape) {
     case 'hoodie':
-      return `<path d="M78 86 L122 86 L126 102 L124 158 L76 158 L74 102Z" fill="${g}"/>
-              <path d="M88 118 H112 V146 H88Z" fill="${shade(tc, -22)}" stroke="${ts}" stroke-width="1"/>
-              <path d="M96 88 Q94 112 92 128 M104 88 Q106 112 108 128" stroke="${ts}" stroke-width="1.3" fill="none"/>
-              <circle cx="92" cy="130" r="1.6" fill="${ts}"/><circle cx="108" cy="130" r="1.6" fill="${ts}"/>
-              <path d="M78 156 H122" stroke="${ts}" stroke-width="3"/>`;
+      return `<path d="M76 86 L124 86 L130 104 L126 164 L74 164 L70 104Z" fill="${g}" stroke="${shade(tc, -40)}" stroke-width="1"/>
+              <path d="M86 116 H114 V150 H86Z" fill="${shade(tc, -26)}" stroke="${ts}" stroke-width="1.2"/>
+              <path d="M95 88 Q92 118 90 136 M105 88 Q108 118 110 136" stroke="${ts}" stroke-width="1.6" fill="none"/>
+              <circle cx="90" cy="138" r="2.1" fill="${ts}"/><circle cx="110" cy="138" r="2.1" fill="${ts}"/>
+              <path d="M76 160 H124" stroke="${ts}" stroke-width="4"/>`;
     case 'jacket':
     case 'neon-jacket':
       return `<path d="M76 86 L124 86 L130 104 L126 168 L112 168 L100 118 L88 168 L74 168 L70 104Z" fill="${g}"/>
@@ -349,7 +359,7 @@ function topSVG(shape, uid, tc, ts) {
               <path d="M86 120 Q100 132 114 120" fill="none" stroke="${ts}" stroke-width="1.1"/>
               <path d="M92 86 Q100 98 108 86" fill="${ts}" opacity=".7"/>`;
     case 'satin-blouse':
-      return `<path d="M80 86 L120 86 L124 104 L120 152 L80 152 L76 104Z" fill="${g}"/>
+      return `<path d="M80 86 L120 86 L124 104 L120 152 L80 152 L76 104Z" fill="${g}" stroke="${shade(tc, -40)}" stroke-width="1"/>
               <path d="M100 88 V150" stroke="${ts}" stroke-width="1.4" opacity=".55"/>
               <path d="M92 86 L100 104 L108 86" fill="${shade(tc, 24)}"/>`;
     case 'blouse':
@@ -363,7 +373,8 @@ function topSVG(shape, uid, tc, ts) {
 
 function topBackSVG(shape, tc) {
   if (shape === 'hoodie') {
-    return `<path d="M78 50 Q100 24 122 50 L116 80 Q100 70 84 80Z" fill="${shade(tc, -16)}"/>`;
+    return `<path d="M74 48 Q100 18 126 48 L120 84 Q100 72 80 84Z" fill="${shade(tc, -10)}" stroke="${shade(tc, -40)}" stroke-width="1"/>
+            <path d="M88 70 Q100 62 112 70" fill="none" stroke="${shade(tc, 20)}" stroke-width="2"/>`;
   }
   return '';
 }
@@ -396,14 +407,18 @@ function accSVG(shape, c, a) {
         <circle cx="100" cy="16" r="2.6" fill="${a}"/><circle cx="90" cy="24" r="1.6" fill="${a}"/><circle cx="110" cy="24" r="1.6" fill="${a}"/>` };
     case 'earrings':
       return { ...empty, ears: `
-        <path d="M${L[0]} ${L[1]} V${L[1] + 10}" stroke="${c}" stroke-width="1.2"/>
-        <polygon points="${L[0]},${L[1] + 10} ${L[0] - 3},${L[1] + 16} ${L[0] + 3},${L[1] + 16}" fill="${c}"/>
-        <path d="M${R[0]} ${R[1]} V${R[1] + 10}" stroke="${c}" stroke-width="1.2"/>
-        <polygon points="${R[0]},${R[1] + 10} ${R[0] - 3},${R[1] + 16} ${R[0] + 3},${R[1] + 16}" fill="${c}"/>` };
+        <circle cx="${L[0]}" cy="${L[1]}" r="1.6" fill="${c}"/>
+        <path d="M${L[0]} ${L[1]} V${L[1] + 14}" stroke="${c}" stroke-width="1.5"/>
+        <polygon points="${L[0]},${L[1] + 14} ${L[0] - 4.2},${L[1] + 22} ${L[0] + 4.2},${L[1] + 22}" fill="${c}"/>
+        <circle cx="${R[0]}" cy="${R[1]}" r="1.6" fill="${c}"/>
+        <path d="M${R[0]} ${R[1]} V${R[1] + 14}" stroke="${c}" stroke-width="1.5"/>
+        <polygon points="${R[0]},${R[1] + 14} ${R[0] - 4.2},${R[1] + 22} ${R[0] + 4.2},${R[1] + 22}" fill="${c}"/>` };
     case 'pearl-earrings':
       return { ...empty, ears: `
-        <circle cx="${L[0]}" cy="${L[1] + 6}" r="2.6" fill="${a}" stroke="${c}" stroke-width=".7"/>
-        <circle cx="${R[0]}" cy="${R[1] + 6}" r="2.6" fill="${a}" stroke="${c}" stroke-width=".7"/>` };
+        <circle cx="${L[0]}" cy="${L[1]}" r="1.5" fill="${c}"/>
+        <circle cx="${L[0]}" cy="${L[1] + 8}" r="3.4" fill="${a}" stroke="${c}" stroke-width=".9"/>
+        <circle cx="${R[0]}" cy="${R[1]}" r="1.5" fill="${c}"/>
+        <circle cx="${R[0]}" cy="${R[1] + 8}" r="3.4" fill="${a}" stroke="${c}" stroke-width=".9"/>` };
     case 'necklace':
       return { ...empty, neck: `<path d="M90 72 Q100 86 110 72" fill="none" stroke="${c}" stroke-width="1.6"/>
         <path d="M97 84 L100 92 L103 84Z" fill="${c}"/><path d="M99.2 86 H100.8 V94 H99.2Z" fill="${c}"/>` };
@@ -428,10 +443,11 @@ function accSVG(shape, c, a) {
         handR: `<ellipse cx="136" cy="204" rx="6.4" ry="7.2" fill="${c}"/><path d="M132 198 Q136 192 140 198" fill="${c}"/>` };
     case 'bag':
       return { ...empty,
-        hip: `<path d="M126 88 Q150 100 148 168" fill="none" stroke="${c}" stroke-width="2"/>
-          <path d="M136 150 Q148 146 156 156 L154 196 Q146 206 134 200 L132 158Z" fill="${c}" stroke="${a}" stroke-width="1.2"/>
-          <ellipse cx="146" cy="168" rx="5" ry="8" fill="${a}" opacity=".55"/>
-          <rect x="142" y="148" width="8" height="6" rx="1" fill="${a}"/>` };
+        hip: `<path d="M124 90 Q154 108 150 168" fill="none" stroke="${c}" stroke-width="2.2"/>
+          <path d="M138 148 C152 146 160 156 158 176 C156 198 148 208 140 206 C128 204 126 188 130 168 C132 154 134 150 138 148Z" fill="${c}" stroke="${a}" stroke-width="1.4"/>
+          <ellipse cx="146" cy="172" rx="6" ry="10" fill="${a}" opacity=".5"/>
+          <rect x="140" y="142" width="12" height="8" rx="1.5" fill="${a}"/>
+          <path d="M142 142 Q146 136 150 142" fill="none" stroke="${a}" stroke-width="1.4"/>` };
     case 'mic':
       return { ...empty,
         handR: `<g transform="translate(136 198)">
