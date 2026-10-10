@@ -18,6 +18,7 @@ let save;
 try { save = JSON.parse(localStorage.getItem(SAVE_KEY)) || defaultSave(); } catch (e) { save = defaultSave(); }
 if (!save.collection) save = defaultSave();
 const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+if (params.has('unlock')) CARDS.forEach(c => { save.collection[c.id] = save.collection[c.id] || 1; });
 persist();
 
 // ---------- 狀態 ----------
@@ -78,8 +79,13 @@ function renderTitle() {
   $('#titleIdols').innerHTML = IDOLS.map((d, i) => `<div class="t-idol" style="animation-delay:${i * 0.25}s">${idolSVG(d, defaultOutfitCards(d))}</div>`).join('');
 }
 function defaultOutfitCards(idol) {
-  const b = idol.brand;
-  return Object.fromEntries(SLOTS.map(s => [s.key, CARD_MAP[`${b}-${s.key}-${s.key === 'acc' ? 'SR' : 'N'}`]]));
+  const looks = {
+    haruka: { top: 'sugar-top-SR', bottom: 'sugar-bottom-SR', shoes: 'sugar-shoes-SR', acc: 'sugar-acc-R' },
+    rinne:  { top: 'midnight-top-N', bottom: 'midnight-bottom-R', shoes: 'midnight-shoes-R', acc: 'midnight-acc-N' },
+    ria:    { top: 'soda-top-R', bottom: 'soda-bottom-N', shoes: 'soda-shoes-N', acc: 'soda-acc-R' },
+  };
+  const look = looks[idol.id] || {};
+  return Object.fromEntries(SLOTS.map(s => [s.key, CARD_MAP[look[s.key] || `${idol.brand}-${s.key}-N`]]));
 }
 $('#btnStart').onclick = () => { Synth.init(); Synth.sfx('click'); go('select'); };
 $('#btnCollection').onclick = () => { Synth.init(); Synth.sfx('click'); showCollection(); };
@@ -437,7 +443,7 @@ function showCollection() {
 function showHelp() {
   modal(`<h2>❔ 玩法說明</h2>
   <ol class="help">
-    <li><b>選擇偶像</b>：三位原創偶像各有屬性（可愛／酷炫／流行）。</li>
+    <li><b>選擇偶像</b>：三位原創偶像各有屬性（甜美／酷炫／流行）。</li>
     <li><b>卡片搭配</b>：從卡冊挑選「上衣・下身・鞋子・配件」四張卡。<br>・卡片屬性與偶像相同：該卡魅力 +15%<br>・同品牌 3 件 ×1.2，4 件套裝 ×1.5<br>・全 SR 以上 ×1.1，全 PR ×1.2<br>總魅力越高，Live 得分倍率越高！</li>
     <li><b>舞台 Live</b>：音符落到判定線時按下對應按鍵或點擊軌道。<br>鍵盤：<kbd>D</kbd> <kbd>F</kbd> <kbd>J</kbd> <kbd>K</kbd>　｜　手機：直接點擊四條軌道<br>判定：PERFECT ＞ GREAT ＞ GOOD ＞ MISS</li>
     <li><b>APPEAL CHANCE</b>：金色星形音符出現時，命中率達 80% 即發動「特別演出」，獲得大量加分！</li>
@@ -446,5 +452,22 @@ function showHelp() {
 }
 
 go('title');
-window.__game = { live, cur, save: () => save, go, startLive };
+const SHOTS = {
+  a: { idol: 'rinne',  screen: 'coord', outfit: { top: 'midnight-top-N', bottom: 'midnight-bottom-R', shoes: 'rouge-shoes-R', acc: 'soda-acc-R' } },
+  b: { idol: 'haruka', screen: 'coord', outfit: { top: 'rouge-top-N', bottom: 'rouge-bottom-R', shoes: 'rouge-shoes-R', acc: 'rouge-acc-N' } },
+  c: { idol: 'rinne',  screen: 'live',  outfit: { top: 'midnight-top-N', bottom: 'midnight-bottom-R', shoes: 'rouge-shoes-R', acc: 'soda-acc-R' } },
+};
+const shot = params.get('shot');
+if (shot && SHOTS[shot]) {
+  const s = SHOTS[shot];
+  cur.idol = IDOLS.find(d => d.id === s.idol) || cur.idol;
+  cur.outfit = { ...s.outfit };
+  if (s.screen === 'live') startLive();
+  else go(s.screen);
+}
+function equip(ids) {
+  SLOTS.forEach(s => { if (ids[s.key] && CARD_MAP[ids[s.key]]) cur.outfit[s.key] = ids[s.key]; });
+  if ($('#screen-coord').classList.contains('active')) renderCoord();
+}
+window.__game = { live, cur, save: () => save, go, startLive, equip, renderCoord };
 })();
