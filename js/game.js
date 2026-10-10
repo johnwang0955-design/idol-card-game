@@ -5,21 +5,32 @@ const $$ = s => [...document.querySelectorAll(s)];
 const params = new URLSearchParams(location.search);
 const AUTOPLAY = params.has('autoplay');
 const SHORT = params.has('short');
-const SAVE_KEY = 'starlightIdolCardStage.v1';
+const SAVE_KEY = 'starlightIdolCardStage.v2';
+const SAVE_KEY_OLD = 'starlightIdolCardStage.v1';
 
-// ---------- 存檔 ----------
+// ---------- 存檔（舊卡 id 直接作廢，避免當掉）----------
 function defaultSave() {
   const col = {};
-  CARDS.filter(c => c.rarity === 'N').forEach(c => col[c.id] = 1);
-  ['sugar-top-R', 'midnight-bottom-R', 'rouge-shoes-R', 'soda-acc-R'].forEach(id => col[id] = 1);
-  return { collection: col, best: {}, plays: 0 };
+  CARDS.filter(c => c.id.endsWith('_b')).forEach(c => col[c.id] = 1);
+  return { v: 2, collection: col, best: {}, plays: 0 };
+}
+function migrateSave(raw) {
+  if (!raw || typeof raw !== 'object' || !raw.collection) return defaultSave();
+  const col = {};
+  Object.entries(raw.collection).forEach(([id, n]) => { if (CARD_MAP[id] && n > 0) col[id] = n; });
+  if (!Object.keys(col).length) return defaultSave();
+  return { v: 2, collection: col, best: raw.best || {}, plays: raw.plays || 0 };
 }
 let save;
-try { save = JSON.parse(localStorage.getItem(SAVE_KEY)) || defaultSave(); } catch (e) { save = defaultSave(); }
-if (!save.collection) save = defaultSave();
-const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+try {
+  const fresh = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+  const legacy = JSON.parse(localStorage.getItem(SAVE_KEY_OLD) || 'null');
+  save = migrateSave(fresh || legacy);
+} catch (e) { save = defaultSave(); }
+const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); localStorage.removeItem(SAVE_KEY_OLD); } catch (e) {} };
 if (params.has('unlock')) CARDS.forEach(c => { save.collection[c.id] = save.collection[c.id] || 1; });
 persist();
+preloadIdolAssets();
 
 // ---------- 狀態 ----------
 const cur = { idol: IDOLS[0], outfit: {}, song: SONGS[0], diff: DIFFS[1], tab: 'top' };
@@ -29,11 +40,16 @@ function defaultOutfit(idol) {
   SLOTS.forEach(s => {
     const mine = CARDS.filter(c => c.slot === s.key && owned(c.id));
     const pref = mine.filter(c => c.brand === idol.brand).sort((a, b) => b.appeal - a.appeal)[0];
-    o[s.key] = (pref || mine[0]).id;
+    o[s.key] = (pref || mine[0] || {}).id || null;
   });
   return o;
 }
-const outfitCards = () => Object.fromEntries(SLOTS.map(s => [s.key, CARD_MAP[cur.outfit[s.key]]]));
+const outfitCards = () => Object.fromEntries(SLOTS.map(s => [s.key, CARD_MAP[cur.outfit[s.key]] || null]));
+const SLOT_FILE = { top: 'top', bottom: 'bot', shoes: 'shoe', acc: 'acc' };
+function showcaseOutfit(idol) {
+  const prefix = { rinne: 'mid', haruka: 'ros', ria: 'pop' }[idol.id] || idol.brand;
+  return Object.fromEntries(SLOTS.map(s => [s.key, CARD_MAP[`${prefix}_${SLOT_FILE[s.key]}_a`]]));
+}
 
 // ---------- 畫面切換 ----------
 function go(name) {
@@ -67,7 +83,7 @@ function cardHTML(c, o = {}) {
     <div class="card-rar">${c.rarity}</div>
     ${o.count > 1 ? `<div class="card-cnt">×${o.count}</div>` : ''}
     ${o.isNew ? `<div class="card-new">NEW!</div>` : ''}
-    <div class="card-art"><span class="card-icon">${slot.icon}</span><span class="card-mark">${b.mark}</span></div>
+    <div class="card-art"><img src="${ASSET_BASE + c.icon}" alt=""><span class="card-mark">${b.mark}</span></div>
     <div class="card-name">${c.name}</div>
     <div class="card-brand">${b.name}<small>${b.en}</small></div>
     <div class="card-foot"><span class="card-type">${TYPES[c.type].name}</span><span class="card-ap">✦${c.appeal}</span></div>
@@ -76,16 +92,8 @@ function cardHTML(c, o = {}) {
 
 // ---------- 標題 ----------
 function renderTitle() {
-  $('#titleIdols').innerHTML = IDOLS.map((d, i) => `<div class="t-idol" style="animation-delay:${i * 0.25}s">${idolSVG(d, defaultOutfitCards(d))}</div>`).join('');
-}
-function defaultOutfitCards(idol) {
-  const looks = {
-    haruka: { top: 'sugar-top-SR', bottom: 'sugar-bottom-SR', shoes: 'sugar-shoes-SR', acc: 'sugar-acc-R' },
-    rinne:  { top: 'midnight-top-N', bottom: 'midnight-bottom-R', shoes: 'midnight-shoes-R', acc: 'midnight-acc-N' },
-    ria:    { top: 'soda-top-R', bottom: 'soda-bottom-N', shoes: 'soda-shoes-N', acc: 'soda-acc-R' },
-  };
-  const look = looks[idol.id] || {};
-  return Object.fromEntries(SLOTS.map(s => [s.key, CARD_MAP[look[s.key] || `${idol.brand}-${s.key}-N`]]));
+  $('#titleIdols').innerHTML = IDOLS.map(d => `<div class="t-idol" data-idol="${d.id}"></div>`).join('');
+  IDOLS.forEach(d => mountIdol($(`#titleIdols [data-idol="${d.id}"]`), d, showcaseOutfit(d), 'bob'));
 }
 $('#btnStart').onclick = () => { Synth.init(); Synth.sfx('click'); go('select'); };
 $('#btnCollection').onclick = () => { Synth.init(); Synth.sfx('click'); showCollection(); };
@@ -95,7 +103,7 @@ $('#btnHelp').onclick = () => { Synth.init(); Synth.sfx('click'); showHelp(); };
 function renderSelect() {
   $('#idolList').innerHTML = IDOLS.map(d => `
     <div class="idol-card" data-idol="${d.id}" style="--tc:${TYPES[d.type].color}">
-      <div class="idol-pic">${idolSVG(d, defaultOutfitCards(d), 'bob')}</div>
+      <div class="idol-pic"><img src="${portraitSrc(d)}" alt="${d.name}"></div>
       <div class="idol-name">${d.name}<small>${d.en}</small></div>
       <div class="idol-type">${TYPES[d.type].name}型｜最愛品牌：${brandOf(d.brand).name}</div>
       <p>${d.desc}</p><div class="idol-catch">${d.catch}</div>
@@ -131,22 +139,29 @@ function calcAppeal(outfit, idol) {
 function renderCoord() {
   const oc = outfitCards();
   const ap = calcAppeal(oc, cur.idol);
-  $('#previewIdol').innerHTML = idolSVG(cur.idol, oc, 'bob');
+  mountIdol($('#previewIdol'), cur.idol, oc, 'bob');
   $('#appealTotal').textContent = ap.total;
   $('#bonusList').innerHTML = `<li><span>卡片魅力合計</span><b>${ap.base}</b></li>` +
-    (ap.bonuses.length ? ap.bonuses.map(b => `<li class="bonus"><span>✦ ${b[0]}</span><b>${b[1]}</b></li>`).join('') : '<li class="hint">提示：同品牌湊齊4件有大幅加成！</li>');
-  $('#slotSummary').innerHTML = SLOTS.map(s => { const c = oc[s.key]; return `<div class="slot-chip ${cur.tab === s.key ? 'on' : ''}" data-tab="${s.key}" style="--c1:${c.color}"><i>${s.icon}</i><span>${s.name}</span><b>${c.name}</b><em class="r-${c.rarity}">${c.rarity}</em></div>`; }).join('');
+    (ap.bonuses.length ? ap.bonuses.map(b => `<li class="bonus"><span>✦ ${b[0]}</span><b>${b[1]}</b></li>`).join('') : '<li class="hint">提示：同品牌湊齊4件有大幅加成。各欄可選「不穿」。</li>');
+  $('#slotSummary').innerHTML = SLOTS.map(s => {
+    const c = oc[s.key];
+    return `<div class="slot-chip ${cur.tab === s.key ? 'on' : ''}" data-tab="${s.key}" style="--c1:${c ? c.color : '#666'}"><i>${s.icon}</i><span>${s.name}</span><b>${c ? c.name : '不穿'}</b><em class="${c ? 'r-' + c.rarity : ''}">${c ? c.rarity : '—'} </em></div>`;
+  }).join('');
   $('#slotTabs').innerHTML = SLOTS.map(s => `<button class="tab ${cur.tab === s.key ? 'on' : ''}" data-tab="${s.key}">${s.icon} ${s.name}</button>`).join('');
   const rOrd = { PR: 0, SR: 1, R: 2, N: 3 };
   const list = CARDS.filter(c => c.slot === cur.tab && owned(c.id)).sort((a, b) => rOrd[a.rarity] - rOrd[b.rarity] || a.brand.localeCompare(b.brand));
-  $('#cardGrid').innerHTML = list.map(c => cardHTML(c, { selected: cur.outfit[c.slot] === c.id, count: save.collection[c.id] })).join('') +
-    `<div class="grid-note">已收集 ${CARDS.filter(c => c.slot === cur.tab && owned(c.id)).length} / 16 張｜Live 後可抽新卡</div>`;
+  const nOwn = CARDS.filter(c => c.slot === cur.tab && owned(c.id)).length;
+  const nAll = CARDS.filter(c => c.slot === cur.tab).length;
+  $('#cardGrid').innerHTML = `<div class="card none ${!cur.outfit[cur.tab] ? 'selected' : ''}" data-unequip>不穿</div>` +
+    list.map(c => cardHTML(c, { selected: cur.outfit[c.slot] === c.id, count: save.collection[c.id] })).join('') +
+    `<div class="grid-note">已收集 ${nOwn} / ${nAll} 張｜Live 後可抽新卡</div>`;
   $('#songSeg').innerHTML = SONGS.map(s => `<button class="${cur.song === s ? 'on' : ''}" data-song="${s.id}">${s.name}<small>BPM ${s.bpm}</small></button>`).join('');
   $('#diffSeg').innerHTML = DIFFS.map(d => `<button class="${cur.diff === d ? 'on' : ''}" data-diff="${d.id}">${d.name}</button>`).join('');
 }
 $('#screen-coord').addEventListener('click', e => {
   const t = e.target.closest('[data-tab]'); if (t) { cur.tab = t.dataset.tab; Synth.sfx('click'); renderCoord(); return; }
-  const c = e.target.closest('.card[data-id]'); if (c) { const card = CARD_MAP[c.dataset.id]; cur.outfit[card.slot] = card.id; Synth.sfx('perfect'); renderCoord(); return; }
+  if (e.target.closest('[data-unequip]')) { cur.outfit[cur.tab] = null; Synth.sfx('click'); renderCoord(); return; }
+  const c = e.target.closest('.card[data-id]'); if (c) { const card = CARD_MAP[c.dataset.id]; if (!card) return; cur.outfit[card.slot] = card.id; Synth.sfx('perfect'); renderCoord(); return; }
   const s = e.target.closest('[data-song]'); if (s) { cur.song = SONGS.find(x => x.id === s.dataset.song); Synth.sfx('click'); renderCoord(); return; }
   const d = e.target.closest('[data-diff]'); if (d) { cur.diff = DIFFS.find(x => x.id === d.dataset.diff); Synth.sfx('click'); renderCoord(); }
 });
@@ -156,8 +171,8 @@ $('#btnAuto').onclick = () => {
   const best = s => (arr) => arr.filter(c => c.slot === s).sort((a, b) => b.appeal - a.appeal)[0];
   const cands = [Object.fromEntries(SLOTS.map(s => [s.key, best(s.key)(mine)]))];
   BRANDS.forEach(b => cands.push(Object.fromEntries(SLOTS.map(s => [s.key, best(s.key)(mine.filter(c => c.brand === b.id)) || best(s.key)(mine)]))));
-  const win = cands.sort((a, b) => calcAppeal(b, cur.idol).total - calcAppeal(a, cur.idol).total)[0];
-  SLOTS.forEach(s => cur.outfit[s.key] = win[s.key].id);
+  const win = cands.filter(o => SLOTS.some(s => o[s.key])).sort((a, b) => calcAppeal(b, cur.idol).total - calcAppeal(a, cur.idol).total)[0];
+  if (win) SLOTS.forEach(s => cur.outfit[s.key] = win[s.key] ? win[s.key].id : null);
   Synth.sfx('appeal'); renderCoord();
 };
 $('#btnLive').onclick = () => startLive();
@@ -216,9 +231,9 @@ async function startLive() {
   });
   if (ctx) Synth.start(song, bars, useAudioClock ? live.start : ctx.currentTime + 3);
   go('live');
-  $('#stageIdol').innerHTML = idolSVG(cur.idol, oc, 'dance');
+  mountIdol($('#stageIdol'), cur.idol, oc, 'dance');
   $('#stageIdol').style.setProperty('--beat', (60 / song.bpm) + 's');
-  $('#cutinIdol').innerHTML = idolSVG(cur.idol, oc);
+  $('#cutinIdol').src = portraitSrc(cur.idol);
   $('#hudSong').innerHTML = `♪ ${song.name}<small>${diff.name}｜魅力 ${ap.total}</small>`;
   $('#hudScore').textContent = '0';
   $('#combo').classList.remove('show');
@@ -393,7 +408,7 @@ function finishLive() {
   save.plays++; persist();
   lastResult = { rank, acc, score: live.score };
   go('result');
-  $('#resultIdol').innerHTML = idolSVG(cur.idol, live.oc, rank === 'C' ? '' : 'bob');
+  mountIdol($('#resultIdol'), cur.idol, live.oc, rank === 'C' ? '' : 'bob');
   const r = $('#rank'); r.textContent = rank; r.className = 'rank rank-' + rank;
   $('#resBest').textContent = isBest ? '🎉 新紀錄！' : `最佳：${prev.toLocaleString()}`;
   $('#resTable').innerHTML = `
@@ -414,7 +429,7 @@ $('#btnGacha').onclick = () => {
   let roll = Math.random() * 100, ri = 0;
   while (ri < 3 && roll >= rates[ri]) { roll -= rates[ri]; ri++; }
   const pool = CARDS.filter(c => c.rarity === RARITIES[ri]);
-  const card = pool[Math.floor(Math.random() * pool.length)];
+  const card = (pool.length ? pool : CARDS)[Math.floor(Math.random() * (pool.length || CARDS.length))];
   const isNew = !owned(card.id);
   save.collection[card.id] = (save.collection[card.id] || 0) + 1; persist();
   btn.style.display = 'none';
@@ -443,8 +458,8 @@ function showCollection() {
 function showHelp() {
   modal(`<h2>❔ 玩法說明</h2>
   <ol class="help">
-    <li><b>選擇偶像</b>：三位原創偶像各有屬性（甜美／酷炫／流行）。</li>
-    <li><b>卡片搭配</b>：從卡冊挑選「上衣・下身・鞋子・配件」四張卡。<br>・卡片屬性與偶像相同：該卡魅力 +15%<br>・同品牌 3 件 ×1.2，4 件套裝 ×1.5<br>・全 SR 以上 ×1.1，全 PR ×1.2<br>總魅力越高，Live 得分倍率越高！</li>
+    <li><b>選擇偶像</b>：三位原創偶像各有屬性（酷炫／優雅／流行）。</li>
+    <li><b>卡片搭配</b>：從卡冊挑選「上衣・下身・鞋子・配件」，各欄也可「不穿」。<br>・卡片屬性與偶像相同：該卡魅力 +15%<br>・同品牌 3 件 ×1.2，4 件套裝 ×1.5<br>・全 SR 以上 ×1.1，全 PR ×1.2<br>總魅力越高，Live 得分倍率越高！</li>
     <li><b>舞台 Live</b>：音符落到判定線時按下對應按鍵或點擊軌道。<br>鍵盤：<kbd>D</kbd> <kbd>F</kbd> <kbd>J</kbd> <kbd>K</kbd>　｜　手機：直接點擊四條軌道<br>判定：PERFECT ＞ GREAT ＞ GOOD ＞ MISS</li>
     <li><b>APPEAL CHANCE</b>：金色星形音符出現時，命中率達 80% 即發動「特別演出」，獲得大量加分！</li>
     <li><b>結果與抽卡</b>：依準確率評價 S／A／B／C，評價越高越容易抽到 SR、PR 卡，卡片會自動存進卡冊（瀏覽器 localStorage）。</li>
@@ -453,21 +468,38 @@ function showHelp() {
 
 go('title');
 const SHOTS = {
-  a: { idol: 'rinne',  screen: 'coord', outfit: { top: 'midnight-top-N', bottom: 'midnight-bottom-R', shoes: 'rouge-shoes-R', acc: 'soda-acc-R' } },
-  b: { idol: 'haruka', screen: 'coord', outfit: { top: 'rouge-top-N', bottom: 'rouge-bottom-R', shoes: 'rouge-shoes-R', acc: 'rouge-acc-N' } },
-  c: { idol: 'rinne',  screen: 'live',  outfit: { top: 'midnight-top-N', bottom: 'midnight-bottom-R', shoes: 'rouge-shoes-R', acc: 'soda-acc-R' } },
+  select: { idol: 'rinne', screen: 'select' },
+  a: { idol: 'rinne', screen: 'coord', outfit: { top: 'mid_top_a', bottom: 'mid_bot_a', shoes: 'mid_shoe_a', acc: 'mid_acc_a' } },
+  b: { idol: 'haruka', screen: 'coord', outfit: { top: 'ros_top_a', bottom: 'ros_bot_a', shoes: 'ros_shoe_a', acc: 'ros_acc_a' } },
+  c: { idol: 'ria', screen: 'live', outfit: { top: 'pop_top_a', bottom: 'pop_bot_a', shoes: 'pop_shoe_a', acc: 'pop_acc_a' } },
+  appeal: { idol: 'haruka', screen: 'appeal', outfit: { top: 'ros_top_a', bottom: 'ros_bot_a', shoes: 'ros_shoe_a', acc: 'ros_acc_a' } },
+  result: { idol: 'rinne', screen: 'result', outfit: { top: 'mid_top_b', bottom: 'mid_bot_b', shoes: 'mid_shoe_b', acc: 'mid_acc_b' } },
+  album: { idol: 'rinne', screen: 'album' },
 };
 const shot = params.get('shot');
 if (shot && SHOTS[shot]) {
   const s = SHOTS[shot];
   cur.idol = IDOLS.find(d => d.id === s.idol) || cur.idol;
-  cur.outfit = { ...s.outfit };
+  if (s.outfit) cur.outfit = { ...s.outfit };
   if (s.screen === 'live') startLive();
+  else if (s.screen === 'appeal') {
+    mountIdol($('#stageIdol'), cur.idol, s.outfit, 'dance');
+    $('#cutinIdol').src = portraitSrc(cur.idol);
+    $('#cutinName').innerHTML = `「${brandOf(cur.idol.brand).special}」`;
+    $('#hudSong').innerHTML = `♪ ${cur.song.name}<small>特別演出</small>`;
+    go('live');
+    requestAnimationFrame(() => { const ci = $('#cutin'); ci.classList.remove('show'); void ci.offsetWidth; ci.classList.add('show'); });
+  } else if (s.screen === 'result') {
+    live.oc = outfitCards(); live.counts = { perfect: 42, great: 8, good: 2, miss: 1 }; live.maxCombo = 40; live.appeals = 2; live.zones = [1, 2]; live.appealBonus = 8000; live.score = 128000; live.song = cur.song; live.diff = cur.diff; live.notes = new Array(53);
+    finishLive();
+    $('#btnGacha').click();
+  } else if (s.screen === 'album') { showCollection(); }
   else go(s.screen);
 }
 function equip(ids) {
-  SLOTS.forEach(s => { if (ids[s.key] && CARD_MAP[ids[s.key]]) cur.outfit[s.key] = ids[s.key]; });
+  SLOTS.forEach(s => { cur.outfit[s.key] = ids[s.key] && CARD_MAP[ids[s.key]] ? ids[s.key] : (ids[s.key] === null ? null : cur.outfit[s.key]); });
   if ($('#screen-coord').classList.contains('active')) renderCoord();
 }
 window.__game = { live, cur, save: () => save, go, startLive, equip, renderCoord };
+preloadIdolAssets();
 })();
