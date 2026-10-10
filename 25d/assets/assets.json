@@ -1,0 +1,514 @@
+{
+ "version": 1,
+ "canvas": {
+  "width": 400,
+  "height": 720,
+  "source_crop": [
+   470,
+   0,
+   870,
+   720
+  ],
+  "source_size": [
+   1280,
+   720
+  ]
+ },
+ "z_order": "backhair(0) < base_body/shin/feet(10-12) < shoes(20) < bottom(30) < top(40) < acc(50) < head(60) < acc upper/earrings(70)",
+ "rules": [
+  "每位偶像選擇時，同時顯示 <idol>_backhair 與 <idol>_head",
+  "鞋子若有 hides，隱藏對應的 base 圖層（鞋子圖層自帶腳部）",
+  "acc 若有 extra，額外畫在 head 之上（z=70）"
+ ],
+ "brands": [
+  "午夜鋒芒",
+  "玫瑰絲絨",
+  "糖霜緞帶",
+  "彩虹汽水"
+ ],
+ "slots": [
+  {
+   "id": "top",
+   "name": "上衣"
+  },
+  {
+   "id": "bottom",
+   "name": "下身"
+  },
+  {
+   "id": "shoes",
+   "name": "鞋子"
+  },
+  {
+   "id": "acc",
+   "name": "配件"
+  }
+ ],
+ "idols": [
+  {
+   "id": "rinne",
+   "name": "凜音",
+   "portrait": "portraits/rinne.webp",
+   "thumb": "portraits/rinne_thumb.webp",
+   "layers": [
+    "rinne_backhair",
+    "rinne_head"
+   ]
+  },
+  {
+   "id": "haruka",
+   "name": "晴夏",
+   "portrait": "portraits/haruka.webp",
+   "thumb": "portraits/haruka_thumb.webp",
+   "layers": [
+    "haruka_backhair",
+    "haruka_head"
+   ]
+  },
+  {
+   "id": "ria",
+   "name": "莉亞",
+   "portrait": "portraits/ria.webp",
+   "thumb": "portraits/ria_thumb.webp",
+   "layers": [
+    "ria_backhair",
+    "ria_head"
+   ]
+  }
+ ],
+ "layers": [
+  {
+   "id": "rinne_backhair",
+   "brand": null,
+   "slot": "backhair",
+   "idol": "rinne",
+   "name": "凜音（後髮）",
+   "file": "idols/rinne_backhair.webp",
+   "z": 0
+  },
+  {
+   "id": "rinne_head",
+   "brand": null,
+   "slot": "head",
+   "idol": "rinne",
+   "name": "凜音（臉與前髮）",
+   "file": "idols/rinne_head.webp",
+   "z": 60
+  },
+  {
+   "id": "haruka_backhair",
+   "brand": null,
+   "slot": "backhair",
+   "idol": "haruka",
+   "name": "晴夏（後髮）",
+   "file": "idols/haruka_backhair.webp",
+   "z": 0
+  },
+  {
+   "id": "haruka_head",
+   "brand": null,
+   "slot": "head",
+   "idol": "haruka",
+   "name": "晴夏（臉與前髮）",
+   "file": "idols/haruka_head.webp",
+   "z": 60
+  },
+  {
+   "id": "ria_backhair",
+   "brand": null,
+   "slot": "backhair",
+   "idol": "ria",
+   "name": "莉亞（後髮）",
+   "file": "idols/ria_backhair.webp",
+   "z": 0
+  },
+  {
+   "id": "ria_head",
+   "brand": null,
+   "slot": "head",
+   "idol": "ria",
+   "name": "莉亞（臉與前髮）",
+   "file": "idols/ria_head.webp",
+   "z": 60
+  },
+  {
+   "id": "base_body",
+   "brand": null,
+   "slot": "base",
+   "name": "共用身體（上半）",
+   "file": "base_body.webp",
+   "z": 10
+  },
+  {
+   "id": "base_shin",
+   "brand": null,
+   "slot": "base",
+   "name": "共用身體（小腿）",
+   "file": "base_shin.webp",
+   "z": 11
+  },
+  {
+   "id": "base_feet",
+   "brand": null,
+   "slot": "base",
+   "name": "共用身體（腳掌）",
+   "file": "base_feet.webp",
+   "z": 12
+  },
+  {
+   "id": "mid_top_a",
+   "brand": "午夜鋒芒",
+   "slot": "top",
+   "name": "星夜鉚釘皮衣",
+   "file": "items/mid_top_a.webp",
+   "z": 40,
+   "icon": "icons/mid_top_a.webp"
+  },
+  {
+   "id": "mid_bot_a",
+   "brand": "午夜鋒芒",
+   "slot": "bottom",
+   "name": "鎖鏈皮革短褲",
+   "file": "items/mid_bot_a.webp",
+   "z": 30,
+   "icon": "icons/mid_bot_a.webp"
+  },
+  {
+   "id": "mid_shoe_a",
+   "brand": "午夜鋒芒",
+   "slot": "shoes",
+   "name": "綁帶高跟長靴",
+   "file": "items/mid_shoe_a.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/mid_shoe_a.webp"
+  },
+  {
+   "id": "mid_acc_a",
+   "brand": "午夜鋒芒",
+   "slot": "acc",
+   "name": "銀環耳環與星墜頸鍊",
+   "file": "items/mid_acc_a.webp",
+   "z": 50,
+   "icon": "icons/mid_acc_a.webp"
+  },
+  {
+   "id": "mid_top_b",
+   "brand": "午夜鋒芒",
+   "slot": "top",
+   "name": "閃電街頭連帽衫",
+   "file": "items/mid_top_b.webp",
+   "z": 40,
+   "extra": [
+    {
+     "file": "items/mid_top_b_upper.webp",
+     "z": 65,
+     "note": "帽兜：畫在臉與前髮之上（頭髮收進帽兜）"
+    }
+   ],
+   "icon": "icons/mid_top_b.webp"
+  },
+  {
+   "id": "mid_bot_b",
+   "brand": "午夜鋒芒",
+   "slot": "bottom",
+   "name": "夜紗百褶短裙",
+   "file": "items/mid_bot_b.webp",
+   "z": 30,
+   "icon": "icons/mid_bot_b.webp"
+  },
+  {
+   "id": "mid_shoe_b",
+   "brand": "午夜鋒芒",
+   "slot": "shoes",
+   "name": "厚底扣環短靴",
+   "file": "items/mid_shoe_b.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/mid_shoe_b.webp"
+  },
+  {
+   "id": "mid_acc_b",
+   "brand": "午夜鋒芒",
+   "slot": "acc",
+   "name": "黑蕾絲露指手套",
+   "file": "items/mid_acc_b.webp",
+   "z": 50,
+   "icon": "icons/mid_acc_b.webp"
+  },
+  {
+   "id": "ros_top_a",
+   "brand": "玫瑰絲絨",
+   "slot": "top",
+   "name": "薔薇絲絨露肩上衣",
+   "file": "items/ros_top_a.webp",
+   "z": 40,
+   "icon": "icons/ros_top_a.webp"
+  },
+  {
+   "id": "ros_bot_a",
+   "brand": "玫瑰絲絨",
+   "slot": "bottom",
+   "name": "酒紅開衩緞面長裙",
+   "file": "items/ros_bot_a.webp",
+   "z": 30,
+   "icon": "icons/ros_bot_a.webp"
+  },
+  {
+   "id": "ros_shoe_a",
+   "brand": "玫瑰絲絨",
+   "slot": "shoes",
+   "name": "黑漆細帶高跟鞋",
+   "file": "items/ros_shoe_a.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/ros_shoe_a.webp"
+  },
+  {
+   "id": "ros_acc_a",
+   "brand": "玫瑰絲絨",
+   "slot": "acc",
+   "name": "珍珠項鍊與珍珠耳環",
+   "file": "items/ros_acc_a.webp",
+   "z": 50,
+   "extra": [
+    {
+     "file": "items/ros_acc_a_upper.webp",
+     "z": 70,
+     "note": "耳環/頸飾：畫在臉與前髮之上"
+    }
+   ],
+   "icon": "icons/ros_acc_a.webp"
+  },
+  {
+   "id": "ros_top_b",
+   "brand": "玫瑰絲絨",
+   "slot": "top",
+   "name": "粉緞綁帶喇叭袖上衣",
+   "file": "items/ros_top_b.webp",
+   "z": 40,
+   "icon": "icons/ros_top_b.webp"
+  },
+  {
+   "id": "ros_bot_b",
+   "brand": "玫瑰絲絨",
+   "slot": "bottom",
+   "name": "香檳玫瑰蕾絲蛋糕裙",
+   "file": "items/ros_bot_b.webp",
+   "z": 30,
+   "icon": "icons/ros_bot_b.webp"
+  },
+  {
+   "id": "ros_shoe_b",
+   "brand": "玫瑰絲絨",
+   "slot": "shoes",
+   "name": "玫瑰金蝴蝶結高跟鞋",
+   "file": "items/ros_shoe_b.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/ros_shoe_b.webp"
+  },
+  {
+   "id": "ros_acc_b",
+   "brand": "玫瑰絲絨",
+   "slot": "acc",
+   "name": "玫瑰金串珠手拿包",
+   "file": "items/ros_acc_b.webp",
+   "z": 50,
+   "icon": "icons/ros_acc_b.webp"
+  },
+  {
+   "id": "sug_top_a",
+   "brand": "糖霜緞帶",
+   "slot": "top",
+   "name": "甜心寶石蓬袖舞台衣",
+   "file": "items/sug_top_a.webp",
+   "z": 40,
+   "icon": "icons/sug_top_a.webp"
+  },
+  {
+   "id": "sug_bot_a",
+   "brand": "糖霜緞帶",
+   "slot": "bottom",
+   "name": "緞帶三層蛋糕裙",
+   "file": "items/sug_bot_a.webp",
+   "z": 30,
+   "icon": "icons/sug_bot_a.webp"
+  },
+  {
+   "id": "sug_shoe_a",
+   "brand": "糖霜緞帶",
+   "slot": "shoes",
+   "name": "芭蕾綁帶高跟鞋",
+   "file": "items/sug_shoe_a.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/sug_shoe_a.webp"
+  },
+  {
+   "id": "sug_acc_a",
+   "brand": "糖霜緞帶",
+   "slot": "acc",
+   "name": "珍珠緞帶頸圈與手環",
+   "file": "items/sug_acc_a.webp",
+   "z": 50,
+   "extra": [
+    {
+     "file": "items/sug_acc_a_upper.webp",
+     "z": 70,
+     "note": "耳環/頸飾：畫在臉與前髮之上"
+    }
+   ],
+   "icon": "icons/sug_acc_a.webp"
+  },
+  {
+   "id": "sug_top_b",
+   "brand": "糖霜緞帶",
+   "slot": "top",
+   "name": "蝴蝶結蕾絲襯衫",
+   "file": "items/sug_top_b.webp",
+   "z": 40,
+   "icon": "icons/sug_top_b.webp"
+  },
+  {
+   "id": "sug_bot_b",
+   "brand": "糖霜緞帶",
+   "slot": "bottom",
+   "name": "愛心刺繡A字裙",
+   "file": "items/sug_bot_b.webp",
+   "z": 30,
+   "icon": "icons/sug_bot_b.webp"
+  },
+  {
+   "id": "sug_shoe_b",
+   "brand": "糖霜緞帶",
+   "slot": "shoes",
+   "name": "珍珠扣瑪莉珍鞋",
+   "file": "items/sug_shoe_b.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/sug_shoe_b.webp"
+  },
+  {
+   "id": "sug_acc_b",
+   "brand": "糖霜緞帶",
+   "slot": "acc",
+   "name": "愛心鍊包與水晶耳環",
+   "file": "items/sug_acc_b.webp",
+   "z": 50,
+   "extra": [
+    {
+     "file": "items/sug_acc_b_upper.webp",
+     "z": 70,
+     "note": "耳環/頸飾：畫在臉與前髮之上"
+    }
+   ],
+   "icon": "icons/sug_acc_b.webp"
+  },
+  {
+   "id": "pop_top_a",
+   "brand": "彩虹汽水",
+   "slot": "top",
+   "name": "檸檬條紋蝴蝶結背心",
+   "file": "items/pop_top_a.webp",
+   "z": 40,
+   "icon": "icons/pop_top_a.webp"
+  },
+  {
+   "id": "pop_bot_a",
+   "brand": "彩虹汽水",
+   "slot": "bottom",
+   "name": "彩虹襯裙百褶短裙",
+   "file": "items/pop_bot_a.webp",
+   "z": 30,
+   "icon": "icons/pop_bot_a.webp"
+  },
+  {
+   "id": "pop_shoe_a",
+   "brand": "彩虹汽水",
+   "slot": "shoes",
+   "name": "彩虹鞋帶厚底球鞋",
+   "file": "items/pop_shoe_a.webp",
+   "z": 20,
+   "hides": [
+    "base_feet"
+   ],
+   "icon": "icons/pop_shoe_a.webp"
+  },
+  {
+   "id": "pop_acc_a",
+   "brand": "彩虹汽水",
+   "slot": "acc",
+   "name": "汽水瓶斜背包",
+   "file": "items/pop_acc_a.webp",
+   "z": 50,
+   "extra": [
+    {
+     "file": "items/pop_acc_a_upper.webp",
+     "z": 70,
+     "note": "耳環/頸飾：畫在臉與前髮之上"
+    }
+   ],
+   "icon": "icons/pop_acc_a.webp"
+  },
+  {
+   "id": "pop_top_b",
+   "brand": "彩虹汽水",
+   "slot": "top",
+   "name": "幻彩雷射短外套",
+   "file": "items/pop_top_b.webp",
+   "z": 40,
+   "icon": "icons/pop_top_b.webp"
+  },
+  {
+   "id": "pop_bot_b",
+   "brand": "彩虹汽水",
+   "slot": "bottom",
+   "name": "彩虹漸層亮片裙",
+   "file": "items/pop_bot_b.webp",
+   "z": 30,
+   "icon": "icons/pop_bot_b.webp"
+  },
+  {
+   "id": "pop_shoe_b",
+   "brand": "彩虹汽水",
+   "slot": "shoes",
+   "name": "幻彩厚底涼跟鞋",
+   "file": "items/pop_shoe_b.webp",
+   "z": 20,
+   "hides": [
+    "base_shin",
+    "base_feet"
+   ],
+   "icon": "icons/pop_shoe_b.webp"
+  },
+  {
+   "id": "pop_acc_b",
+   "brand": "彩虹汽水",
+   "slot": "acc",
+   "name": "星星耳環與彩色手環",
+   "file": "items/pop_acc_b.webp",
+   "z": 50,
+   "extra": [
+    {
+     "file": "items/pop_acc_b_upper.webp",
+     "z": 70,
+     "note": "耳環/頸飾：畫在臉與前髮之上"
+    }
+   ],
+   "icon": "icons/pop_acc_b.webp"
+  }
+ ]
+}

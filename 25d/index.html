@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-build="25d-20261010a">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>星光偶像卡牌舞台 Starlight Idol Card Stage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%9C%B3%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css?v=25d-20261010a">
+<link rel="stylesheet" href="css/stage3d.css?v=25d-20261010a">
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.js","three/addons/":"./vendor/three/addons/"}}</script>
+</head>
+<body>
+<div id="sky"></div>
+<div id="app">
+
+  <!-- 標題 -->
+  <section id="screen-title" class="screen active">
+    <div class="title-wrap">
+      <div class="title-star">✦ STAGE ✦</div>
+      <h1 class="logo"><span>星光偶像</span><span class="logo2">卡牌舞台</span></h1>
+      <div class="logo-en">Starlight Idol Card Stage</div>
+      <div class="title-idols" id="titleIdols"></div>
+      <div class="menu">
+        <button class="btn btn-main" id="btnStart">開始舞台</button>
+        <button class="btn" id="btnCollection">卡冊</button>
+        <button class="btn" id="btnHelp">玩法說明</button>
+      </div>
+      <div class="title-foot">原創偶像節奏遊戲｜角色、服裝與音樂皆為原創</div>
+    </div>
+  </section>
+
+  <!-- 選角 -->
+  <section id="screen-select" class="screen">
+    <header class="bar"><button class="btn small" data-go="title">◀ 返回</button><h2>選擇你的偶像</h2><span></span></header>
+    <div class="idol-list" id="idolList"></div>
+  </section>
+
+  <!-- 搭配 -->
+  <section id="screen-coord" class="screen">
+        <header class="bar"><button class="btn small" data-go="select">◀ 換偶像</button><h2>卡片搭配 Coordinate</h2><button class="btn small" id="btnAuto">自動搭配</button></header>
+    <div class="coord">
+      <div class="coord-left">
+        <div class="preview-stage"><div class="preview-idol" id="previewIdol"></div><div class="host3d" id="preview3d"></div><div class="hint3d">↔ 拖曳轉身</div></div>
+        <div class="appeal-box">
+          <div class="appeal-total">總魅力值 <b id="appealTotal">0</b></div>
+          <ul id="bonusList" class="bonus-list"></ul>
+        </div>
+        <div class="slots" id="slotSummary"></div>
+      </div>
+      <div class="coord-right">
+        <div class="tabs" id="slotTabs"></div>
+        <div class="card-grid" id="cardGrid"></div>
+        <div class="live-setup">
+          <div class="setup-row"><span class="lbl">曲目</span><div class="seg" id="songSeg"></div></div>
+          <div class="setup-row"><span class="lbl">難度</span><div class="seg" id="diffSeg"></div></div>
+          <div class="setup-row"><span class="lbl">觸控</span><label class="chk"><input type="checkbox" id="easyTouch"> 簡易觸控<small>大按鍵・無同步雙押</small></label></div>
+          <div class="setup-row"><span class="lbl">判定</span><input type="range" id="offsetSlider" min="-80" max="80" step="5" value="0"><em id="offsetVal">0ms</em></div>
+          <button class="btn btn-main big" id="btnLive">開始 Live</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 換裝走秀 Dress-up runway -->
+  <section id="screen-dress" class="screen">
+    <div class="host3d" id="dress3d"></div>
+    <div class="dress-cap" id="dressCap"></div>
+    <div class="dress-flash" id="dressFlash"></div>
+    <button class="btn small ghost dress-skip" id="btnSkip">SKIP ▶▶</button>
+  </section>
+
+  <!-- Live -->
+  <section id="screen-live" class="screen">
+    <div class="stage-bg">
+      <div class="host3d" id="stage3d"></div>
+      <div class="spot s1"></div><div class="spot s2"></div><div class="spot s3"></div>
+      <div class="stage-floor"></div>
+      <div class="idol-spot" id="idolSpot"></div>
+      <div class="stage-star" id="stageStar">
+        <div class="stage-idol" id="stageIdol"></div>
+        <div class="idol-sparkles" id="idolSparkles" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="hud-l">
+        <div class="hud-song" id="hudSong"></div>
+        <div class="progress"><i id="hudProgress"></i></div>
+      </div>
+      <div class="hud-r">
+        <div class="hud-score"><small>SCORE</small><b id="hudScore">0</b></div>
+        <div class="appeal-meter"><span>APPEAL</span><div class="meter"><i id="appealMeter"></i></div><em id="appealCount">★ 0</em></div>
+      </div>
+      <button class="btn small ghost" id="btnQuit">✕</button>
+    </div>
+    <div class="live-fx">
+      <div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
+      <div class="judge" id="judge"></div>
+    </div>
+    <div class="lanes-wrap" id="lanesWrap">
+      <canvas id="laneCanvas"></canvas>
+      <div class="lane-touch" id="laneTouch">
+        <div data-lane="0"><span>D</span></div><div data-lane="1"><span>F</span></div><div data-lane="2"><span>J</span></div><div data-lane="3"><span>K</span></div>
+      </div>
+    </div>
+    <div class="banner" id="banner"></div>
+    <div class="cutin" id="cutin"><div class="cutin-band"><img id="cutinIdol" alt=""><div class="cutin-text"><b>SPECIAL APPEAL</b><span id="cutinName"></span></div></div></div>
+    <div class="countdown" id="countdown"></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="screen-result" class="screen">
+    <div class="result">
+      <h2 class="result-title">LIVE 結果</h2>
+      <div class="result-main">
+        <div class="result-idol" id="resultIdol"></div>
+        <div class="result-info">
+          <div class="rank" id="rank">S</div>
+          <div class="result-score"><small>SCORE</small><b id="resScore">0</b><em id="resBest"></em></div>
+          <table class="result-table" id="resTable"></table>
+        </div>
+      </div>
+      <div class="gacha">
+        <div class="gacha-box" id="gachaBox">
+          <button class="btn btn-main big" id="btnGacha">🎁 抽取獎勵卡片！</button>
+          <div class="gacha-card" id="gachaCard"></div>
+          <div class="gacha-msg" id="gachaMsg"></div>
+        </div>
+      </div>
+      <div class="menu row">
+        <button class="btn" id="btnRetry">🔁 再挑戰</button>
+        <button class="btn" id="btnRecoord">👗 換搭配</button>
+        <button class="btn" data-go="title">🏠 回標題</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 彈窗 -->
+<div class="modal" id="modal"><div class="modal-body"><button class="btn small close" id="modalClose">✕</button><div id="modalContent"></div></div></div>
+
+<script src="assets/assets.js?v=25d-20261010a"></script>
+<script src="js/data.js?v=25d-20261010a"></script>
+<script src="js/audio.js?v=25d-20261010a"></script>
+<script src="js/idol.js?v=25d-20261010a"></script>
+<script src="js/game.js?v=25d-20261010a"></script>
+<script type="module" src="js3d/stage3d.js?v=25d-20261010a"></script>
+</body>
+</html>
