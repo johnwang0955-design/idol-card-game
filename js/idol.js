@@ -56,7 +56,8 @@ function mountIdol(el, idol, outfit, cls) {
       el._pool[k] = img;
     }
     img.style.zIndex = z;
-    const src = ASSET_BASE + f;
+    const ver = document.documentElement.dataset.build || '';
+    const src = ASSET_BASE + f + (ver ? '?v=' + ver : '');
     if (img.getAttribute('src') !== src) img.src = src;
     img.style.display = '';
   });
@@ -76,10 +77,11 @@ function preloadIdolAssets() {
     urls.push(ASSET_BASE + i.portrait);
     urls.push(ASSET_BASE + i.thumb);
   });
+  const ver = document.documentElement.dataset.build || '';
   return Promise.all(urls.map(src => new Promise(res => {
     const im = new Image();
     im.onload = im.onerror = () => res(src);
-    im.src = src;
+    im.src = src + (ver ? '?v=' + ver : '');
   })));
 }
 
@@ -87,5 +89,6 @@ function portraitSrc(idol, thumb) {
   const id = (idol && idol.id) || idol;
   const meta = (window.ASSETS && ASSETS.idols || []).find(i => i.id === id);
   const path = thumb ? (idol.thumb || (meta && meta.thumb)) : (idol.portrait || (meta && meta.portrait));
-  return ASSET_BASE + path;
+  const ver = document.documentElement.dataset.build || '';
+  return ASSET_BASE + path + (ver ? '?v=' + ver : '');
 }
