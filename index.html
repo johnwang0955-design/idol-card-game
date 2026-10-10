@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>星光偶像卡牌舞台 Starlight Idol Card Stage</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="sky"></div>
+<div id="app">
+
+  <!-- 標題 -->
+  <section id="screen-title" class="screen active">
+    <div class="title-wrap">
+      <div class="title-star">✦</div>
+      <h1 class="logo"><span>星光偶像</span><span class="logo2">卡牌舞台</span></h1>
+      <div class="logo-en">Starlight Idol Card Stage</div>
+      <div class="title-idols" id="titleIdols"></div>
+      <div class="menu">
+        <button class="btn btn-main" id="btnStart">✨ 開始遊戲 ✨</button>
+        <button class="btn" id="btnCollection">📒 我的卡冊</button>
+        <button class="btn" id="btnHelp">❔ 玩法說明</button>
+      </div>
+      <div class="title-foot">原創同人風格原型｜所有角色、卡片與音樂皆為原創</div>
+    </div>
+  </section>
+
+  <!-- 選角 -->
+  <section id="screen-select" class="screen">
+    <header class="bar"><button class="btn small" data-go="title">◀ 返回</button><h2>選擇你的偶像</h2><span></span></header>
+    <div class="idol-list" id="idolList"></div>
+  </section>
+
+  <!-- 搭配 -->
+  <section id="screen-coord" class="screen">
+    <header class="bar"><button class="btn small" data-go="select">◀ 換偶像</button><h2>卡片搭配 Coordinate</h2><button class="btn small" id="btnAuto">🪄 自動搭配</button></header>
+    <div class="coord">
+      <div class="coord-left">
+        <div class="preview-stage"><div class="preview-idol" id="previewIdol"></div></div>
+        <div class="appeal-box">
+          <div class="appeal-total">總魅力值 <b id="appealTotal">0</b></div>
+          <ul id="bonusList" class="bonus-list"></ul>
+        </div>
+        <div class="slots" id="slotSummary"></div>
+      </div>
+      <div class="coord-right">
+        <div class="tabs" id="slotTabs"></div>
+        <div class="card-grid" id="cardGrid"></div>
+        <div class="live-setup">
+          <div class="setup-row"><span class="lbl">曲目</span><div class="seg" id="songSeg"></div></div>
+          <div class="setup-row"><span class="lbl">難度</span><div class="seg" id="diffSeg"></div></div>
+          <button class="btn btn-main big" id="btnLive">🎤 開始 Live！</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live -->
+  <section id="screen-live" class="screen">
+    <div class="stage-bg">
+      <div class="spot s1"></div><div class="spot s2"></div><div class="spot s3"></div>
+      <div class="stage-floor"></div>
+      <div class="stage-idol" id="stageIdol"></div>
+    </div>
+    <div class="hud">
+      <div class="hud-l">
+        <div class="hud-song" id="hudSong"></div>
+        <div class="progress"><i id="hudProgress"></i></div>
+      </div>
+      <div class="hud-score"><small>SCORE</small><b id="hudScore">0</b></div>
+      <button class="btn small ghost" id="btnQuit">✕</button>
+    </div>
+    <div class="appeal-meter"><span>APPEAL</span><div class="meter"><i id="appealMeter"></i></div><em id="appealCount">★ 0</em></div>
+    <div class="lanes-wrap" id="lanesWrap">
+      <canvas id="laneCanvas"></canvas>
+      <div class="lane-touch" id="laneTouch">
+        <div data-lane="0"><span>D</span></div><div data-lane="1"><span>F</span></div><div data-lane="2"><span>J</span></div><div data-lane="3"><span>K</span></div>
+      </div>
+      <div class="combo" id="combo"><b>0</b><small>COMBO</small></div>
+      <div class="judge" id="judge"></div>
+    </div>
+    <div class="banner" id="banner"></div>
+    <div class="cutin" id="cutin"><div class="cutin-idol" id="cutinIdol"></div><div class="cutin-text"><b>SPECIAL APPEAL!</b><span id="cutinName"></span></div></div>
+    <div class="countdown" id="countdown"></div>
+  </section>
+
+  <!-- 結果 -->
+  <section id="screen-result" class="screen">
+    <div class="result">
+      <h2 class="result-title">LIVE 結果</h2>
+      <div class="result-main">
+        <div class="result-idol" id="resultIdol"></div>
+        <div class="result-info">
+          <div class="rank" id="rank">S</div>
+          <div class="result-score"><small>SCORE</small><b id="resScore">0</b><em id="resBest"></em></div>
+          <table class="result-table" id="resTable"></table>
+        </div>
+      </div>
+      <div class="gacha">
+        <div class="gacha-box" id="gachaBox">
+          <button class="btn btn-main big" id="btnGacha">🎁 抽取獎勵卡片！</button>
+          <div class="gacha-card" id="gachaCard"></div>
+          <div class="gacha-msg" id="gachaMsg"></div>
+        </div>
+      </div>
+      <div class="menu row">
+        <button class="btn" id="btnRetry">🔁 再挑戰</button>
+        <button class="btn" id="btnRecoord">👗 換搭配</button>
+        <button class="btn" data-go="title">🏠 回標題</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 彈窗 -->
+<div class="modal" id="modal"><div class="modal-body"><button class="btn small close" id="modalClose">✕</button><div id="modalContent"></div></div></div>
+
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/idol.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

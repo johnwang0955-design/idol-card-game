@@ -1,0 +1,87 @@
+// ===== 原創資料：品牌、卡片、偶像、曲目 =====
+const SLOTS = [
+  { key: 'top', name: '上衣', icon: '👚' },
+  { key: 'bottom', name: '下身', icon: '👗' },
+  { key: 'shoes', name: '鞋子', icon: '👠' },
+  { key: 'acc', name: '配件', icon: '💎' },
+];
+const RARITIES = ['N', 'R', 'SR', 'PR'];
+const TYPES = {
+  cute: { name: '可愛', color: '#ff6fae' },
+  cool: { name: '酷炫', color: '#4a6cff' },
+  sexy: { name: '性感', color: '#b0287a' },
+  pop:  { name: '流行', color: '#ffb300' },
+};
+const BRANDS = [
+  { id: 'sugar', name: '糖霜緞帶', en: 'Sugar Ribbon', type: 'cute', mark: '🎀',
+    colors: ['#ffb3d6', '#ff8cc6', '#ffffff', '#ff5fa8'], accent: '#ffe6f2', special: '糖霜奇蹟旋轉',
+    items: {
+      top: ['草莓格紋上衣', '蝴蝶結針織衫', '糖霜蕾絲上衣', '星糖公主上衣'],
+      bottom: ['草莓格紋裙', '蓬蓬蛋糕裙', '糖霜蕾絲澎裙', '星糖公主裙'],
+      shoes: ['草莓瑪莉珍鞋', '蝴蝶結短靴', '糖霜蕾絲跟鞋', '星糖公主玻璃鞋'],
+      acc: ['草莓髮夾', '大蝴蝶結髮箍', '糖霜蕾絲頭紗', '星糖公主皇冠'] } },
+  { id: 'midnight', name: '午夜鋒芒', en: 'Midnight Edge', type: 'cool', mark: '⚡',
+    colors: ['#5a6cff', '#2b2f6b', '#9fb4ff', '#18e0ff'], accent: '#c8d2ff', special: '霓虹閃電突擊',
+    items: {
+      top: ['街頭連帽衫', '鉚釘皮夾克', '霓虹電光外套', '銀河騎士外套'],
+      bottom: ['破洞牛仔褲裙', '皮革短褲', '霓虹電光褲裙', '銀河騎士長裙'],
+      shoes: ['帆布高筒鞋', '鉚釘馬汀靴', '霓虹電光長靴', '銀河騎士戰靴'],
+      acc: ['金屬耳環', '十字架項鍊', '霓虹護目鏡', '銀河騎士耳機'] } },
+  { id: 'rouge', name: '玫瑰絲絨', en: 'Rouge Velvet', type: 'sexy', mark: '🌹',
+    colors: ['#d81b60', '#7b1fa2', '#ff4f81', '#4a0033'], accent: '#ffd76a', special: '午夜玫瑰之吻',
+    items: {
+      top: ['絲緞襯衫', '露肩絲絨上衣', '玫瑰蕾絲馬甲', '午夜玫瑰禮服上衣'],
+      bottom: ['窄版鉛筆裙', '開衩絲絨長裙', '玫瑰蕾絲魚尾裙', '午夜玫瑰禮服裙'],
+      shoes: ['尖頭跟鞋', '綁帶絲絨高跟鞋', '玫瑰蕾絲涼鞋', '午夜玫瑰水晶鞋'],
+      acc: ['珍珠耳環', '黑絲絨頸鍊', '玫瑰蕾絲手套', '午夜玫瑰后冠'] } },
+  { id: 'soda', name: '彩虹汽水', en: 'Rainbow Soda', type: 'pop', mark: '⭐',
+    colors: ['#ffd23f', '#3ad1ff', '#7cf06b', '#ff7a3d'], accent: '#ffffff', special: '七彩汽水大爆發',
+    items: {
+      top: ['彩色T恤', '汽水條紋背心', '彩虹泡泡外套', '七彩流星上衣'],
+      bottom: ['吊帶短褲', '百褶迷你裙', '彩虹泡泡裙', '七彩流星舞台裙'],
+      shoes: ['彩色運動鞋', '厚底休閒鞋', '彩虹泡泡厚底靴', '七彩流星舞台靴'],
+      acc: ['星星髮夾', '汽水瓶包包', '彩虹泡泡耳機', '七彩流星麥克風'] } },
+];
+
+const CARDS = [];
+BRANDS.forEach((b, bi) => {
+  SLOTS.forEach((s, si) => {
+    RARITIES.forEach((r, ri) => {
+      const base = [200, 420, 720, 1000][ri];
+      CARDS.push({
+        id: `${b.id}-${s.key}-${r}`,
+        name: b.items[s.key][ri],
+        brand: b.id, type: b.type, slot: s.key, rarity: r,
+        appeal: base + ((bi * 7 + si * 13 + ri * 5) % 9) * 10,
+        color: b.colors[ri], sub: b.accent,
+      });
+    });
+  });
+});
+const CARD_MAP = Object.fromEntries(CARDS.map(c => [c.id, c]));
+const brandOf = id => BRANDS.find(b => b.id === id);
+
+const IDOLS = [
+  { id: 'haruka', name: '晴夏', en: 'Haruka', type: 'cute', brand: 'sugar', hair: '#ff9ec4', hair2: '#ff7bb0', eye: '#e0457b', style: 'twin',
+    desc: '元氣滿滿的甜點店看板娘，夢想是讓全世界都笑出來！', catch: '「一起閃閃發亮吧！」' },
+  { id: 'rinne', name: '凜音', en: 'Rinne', type: 'cool', brand: 'midnight', hair: '#3c3f8f', hair2: '#272a66', eye: '#36c8ff', style: 'long',
+    desc: '沉默寡言的天才舞者，舞台上的她比誰都耀眼。', catch: '「跟上我的節奏。」' },
+  { id: 'ria', name: '莉亞', en: 'Ria', type: 'pop', brand: 'soda', hair: '#ffb547', hair2: '#ff8f1f', eye: '#2bb673', style: 'side',
+    desc: '人氣影音創作者，最喜歡嘗試最新潮流和大家分享。', catch: '「今天也要按讚喔！」' },
+];
+
+const SONGS = [
+  { id: 'march', name: '星光進行曲', en: 'Starlight March', bpm: 128, root: 60, minor: false,
+    prog: [[5, 9, 12], [7, 11, 14], [4, 7, 11], [9, 12, 16]], wave: 'square' },
+  { id: 'neon', name: '午夜霓虹', en: 'Midnight Neon', bpm: 140, root: 57, minor: true,
+    prog: [[0, 3, 7], [8, 12, 15], [3, 7, 10], [10, 14, 17]], wave: 'sawtooth' },
+];
+const DIFFS = [
+  { id: 'easy', name: '簡單', approach: 1.6 },
+  { id: 'normal', name: '普通', approach: 1.3 },
+  { id: 'hard', name: '困難', approach: 1.05 },
+];
+
+const GACHA_RATES = { // N, R, SR, PR (%)
+  S: [20, 35, 32, 13], A: [30, 38, 25, 7], B: [40, 35, 20, 5], C: [55, 33, 10, 2],
+};
